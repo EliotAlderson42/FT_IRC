@@ -24,4 +24,4 @@ class Server {
     int _serverSocket = 0;
     sockaddr_in _serverAddr;
     std::unordered_map<int, Client> _clients;
-    };
+};

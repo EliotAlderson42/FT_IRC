@@ -39,6 +39,7 @@ void Server::setServerAddr() {
 }
 
 void Server::bindServer() {
+
     if (bind(this->_serverSocket, reinterpret_cast<sockaddr*>(&this->_serverAddr), sizeof(this->_serverAddr)) == -1) {
         std::cerr << "Failed to bind socket" << std::endl;
         close(this->_serverSocket);

@@ -45,7 +45,7 @@ void Client::runClient() {
         if (clientSocket == -1)
         {
             std::cerr << "Error : connection refused." << std::endl;
-            break ;
+            continue ;
         }
         else
             std::cout << "New client's connection accepted." << std::endl;
