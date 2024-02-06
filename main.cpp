@@ -7,7 +7,7 @@ void signalHandler(int signum)
 {
     if (signum == SIGINT)
     {
-        std::cout << "Server stoppage...\n";
+        std::cout << "Server stoppage..." << std::endl;
         running = 0;
     }
 }
@@ -23,16 +23,17 @@ int main()
         int clientSocket = accept(server.getServerSocket(), reinterpret_cast<sockaddr*>(&clientAddr), &clientAddrLen);
         if (clientSocket == -1)
         {
-            std::cerr << "Error : connection refused.\n";
+            std::cerr << "Error : connection refused." << std::endl;
             continue ;
         }
         else
-            std::cout << "New client's connection accepted.\n";
+            std::cout << "New client's connection accepted." << std::endl;
 
         char buffer[BUFFER_SIZE];
         ssize_t bytesRead;
         while ((bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0)) > 0) 
         {
+            std::cout << "Waw c'est le fuego dis donc" << std::endl;
             send(clientSocket, buffer, bytesRead, 0);
         }
 

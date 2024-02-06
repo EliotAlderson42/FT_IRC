@@ -16,17 +16,6 @@ Server::Server(std::string name, std::string password, std::string port) : _name
     std::cout << "Server created with custom values" << std::endl;
 }
 
-Server::Server(const Server& server) : _name(server._name), _password(server._password), _port(server._port), _serverSocket(server._serverSocket) {
-    std::cout << "Server created with copy constructor" << std::endl;
-}
-
-Server const &Server::operator=(const Server& server) {
-    _name = server._name;
-    _password = server._password;
-    _port = server._port;
-    _serverSocket = server._serverSocket;
-    std::cout << "Server created with copy assignment" << std::endl;
-}
 
 Server::~Server() {
     close(_serverSocket);

@@ -7,8 +7,8 @@
 #include <csignal>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-#include "client.hpp"
-#include <map>
+// #include "client.hpp"
+// #include <unordered_map>
 
 class Server {
     public:
@@ -30,6 +30,6 @@ class Server {
     std::string _password;
     std::string _port;
     int _serverSocket = 0;
-    sockaddr_in _serverAddr = 0;
-    std::unordered_map<int, Client> _clients;
+    sockaddr_in _serverAddr;
+    // std::unordered_map<int, Client> _clients;
     };
