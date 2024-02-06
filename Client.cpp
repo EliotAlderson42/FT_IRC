@@ -1,4 +1,4 @@
-#include "Client.hpp"
+#include "Lib.hpp"
 
 const int BUFFER_SIZE = 1024;
 int running = 1;

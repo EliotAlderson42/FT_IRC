@@ -1,0 +1,12 @@
+#pragma once
+#include <iostream>
+#include <string>
+#include <unistd.h>
+#include <cstring>
+#include <cstdlib>
+#include <csignal>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <unordered_map>
+#include "Client.hpp"
+#include "Server.hpp"

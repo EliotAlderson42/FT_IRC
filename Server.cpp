@@ -1,4 +1,4 @@
-#include "Server.hpp"
+#include "Lib.hpp"
 
 Server::Server() : _name("localhost"), _password(""), _port("6667"), _serverSocket(0) {
     setServerSocket();

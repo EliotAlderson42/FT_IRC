@@ -1,15 +1,7 @@
 #pragma once
-#include <iostream>
-#include <string>
-#include <unistd.h>
-#include <cstring>
-#include <cstdlib>
-#include <csignal>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-// #include "Client.hpp"
-// #include <unordered_map>
+#include "Lib.hpp"
 
+class Client;
 class Server {
     public:
     Server();
@@ -31,5 +23,5 @@ class Server {
     std::string _port;
     int _serverSocket = 0;
     sockaddr_in _serverAddr;
-    // std::unordered_map<int, Client> _clients;
+    std::unordered_map<int, Client> _clients;
     };
