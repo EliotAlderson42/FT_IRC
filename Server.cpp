@@ -24,7 +24,7 @@ Server::~Server() {
 
 void Server::setServerSocket() {
     this->_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-        // close(this->_serverSocket);
+       // close(this->_serverSocket);
 
     if (this->_serverSocket == -1) {
         std::cerr << "Failed to create socket" << std::endl;

@@ -15,3 +15,5 @@
 #include "Client.hpp"
 #include "Server.hpp"
 #include "Channel.hpp"
+
+void NICK(std::string receivedData, int i, Client *client);

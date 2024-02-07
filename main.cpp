@@ -110,6 +110,9 @@ int main()
                 while ((bytesRead = recv(events[i].data.fd, buffer, sizeof(buffer), 0)) > 0) 
                 {
                     std::string receivedData(buffer, bytesRead);
+
+                    NICK(receivedData, events[i].data.fd, clients[events[i].data.fd]);
+
                     if (receivedData.find("JOIN") != std::string::npos)
                     {
                         if (channel->findClient(events[i].data.fd))
@@ -119,17 +122,7 @@ int main()
                         else
                             channel->inviteClient(clients[events[i].data.fd]);
                     }
-                    else if (receivedData.find("NICK") != std::string::npos)
-                    {
-                        send(events[i].data.fd, "Choose your nickname : ", 21, 0);
-                        clients[events[i].data.fd]->isExpectingNickname(true);
-                    }
-                    else if (clients[events[i].data.fd]->getExpectingNickname())
-                    {
-                        clients[events[i].data.fd]->setNickname(receivedData);
-                        clients[events[i].data.fd]->isExpectingNickname(false);
-                        send(events[i].data.fd, "Nickname set", 12, 0);
-                    }
+                    
                     else if (channel->findClient(events[i].data.fd))
                     {
                         if (!clients[events[i].data.fd]->getNickname().empty())
@@ -139,11 +132,9 @@ int main()
                         }
                         channel->diffuseMessage(receivedData);
                     }
-
                 }
             }
         }
-        // close(clientSocket);
     }
     close(server->getServerSocket());
 

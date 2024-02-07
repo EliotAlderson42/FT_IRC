@@ -1,8 +1,8 @@
 NAME = irc
-SRC = main.cpp Server.cpp Client.cpp Channel.cpp
+SRC = main.cpp Server.cpp Client.cpp Channel.cpp NICK.cpp
 OBJ = $(SRC:.cpp=.o)
 C = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++98
+CFLAGS = -g3 -Wall -Wextra -Werror -std=c++98
 
 all: $(NAME)
 
