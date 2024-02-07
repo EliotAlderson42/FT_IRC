@@ -10,11 +10,14 @@ class Client {
     Client const &operator=(const Client& client);
     ~Client();
 
-
     sockaddr_in  getClientAddr() const;
     void setClientSocket(int socket);
     void setClientAddr(sockaddr_in addr);
-
+    int getSocket() const;
+    std::string getNickname() const;
+    void setNickname(std::string nickname);
+    void isExpectingNickname(bool value);
+    bool getExpectingNickname() const;
     private:
     std::string _username;
     std::string _nickname;
@@ -27,4 +30,5 @@ class Client {
     int _clientSocket;
     sockaddr_in _clientAddr;
     Server *_clientServer;
+    bool _expectingNickname = false;
 };

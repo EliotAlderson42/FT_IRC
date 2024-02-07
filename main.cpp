@@ -4,11 +4,11 @@
 const int BUFFER_SIZE = 1024;
 int running = 1;
 
-void signalHandler(int signum)
+void signalHandler(int signum, siginfo_t *info, void *ptr)
 {
     if (signum == SIGINT)
     {
-        std::cout << "Server stoppage..." << std::endl;
+        std::cout << "\nServer stoppage..." << std::endl;
         running = 0;
     }
 }
@@ -27,15 +27,26 @@ int setNonBlocking(int sockfd) {
 
 int main()
 {
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_sigaction = signalHandler;
+    sa.sa_flags = SA_SIGINFO;
+
+    if (sigaction(SIGINT, &sa, NULL) == -1)
+    {
+        std::cerr << "Error: cannot handle SIGINT" << std::endl;
+        return EXIT_FAILURE;
+    }
+    Channel *channel = new Channel("default", "default");
     Server *server = new Server("default", "default", "8080");
-    std::unordered_map<int, Client> clients(10);
+    std::unordered_map<int, Client *> clients(10);
     int eventSize = 1;
     server->listenServer();
     
     int epollFd = epoll_create1(0); // je cree l'instance epoll
     if (epollFd == -1)
     {
-        std::cerr << "Erreur lors de la creation de l'instance epoll\n";
+        std::cerr << "Erreur lors de la creation de l'instance epoll"  << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -44,7 +55,7 @@ int main()
     events[0].data.fd = server->getServerSocket(); // je recupere le socket 
     if (epoll_ctl(epollFd, EPOLL_CTL_ADD, server->getServerSocket(), &events[0]) == -1) // je lie l'instance epoll avec le socket et la structure de gestion des events
     {
-        std::cerr << "Erreur lors de l'ajout du socket server a l'instance epoll\n";
+        std::cerr << "Erreur lors de l'ajout du socket server a l'instance epoll"  << std::endl;
         return EXIT_FAILURE;
     }
     
@@ -55,19 +66,18 @@ int main()
         {
             if (errno == EINTR) 
                 continue; // Le signal a interrompu l'appel à epoll_wait(), réessayer
-            std::cerr << "Erreur lors de l'appel à epoll_wait().\n";
+            std::cerr << "Erreur lors de l'appel à epoll_wait()."  << std::endl;
             break;
         }
 
         if (static_cast<size_t>(numEvents) > events.size())
-            events.resize(numEvents); 
+            events.resize(numEvents);
 
         for (int i = 0; i < numEvents; i++)
         {
             if (events[i].data.fd == server->getServerSocket())
             {
                 sockaddr_in clientAddr;
-                // memset(&clientAddr, 0, sizeof(clientAddr));
                 socklen_t clientAddrLen = sizeof(clientAddr);
                 int clientSocket = accept(server->getServerSocket(), reinterpret_cast<sockaddr*>(&clientAddr), &clientAddrLen);
                 if (clientSocket == -1)
@@ -83,11 +93,11 @@ int main()
                 clientEvent.data.fd = clientSocket;
                 if (epoll_ctl(epollFd, EPOLL_CTL_ADD, clientSocket, &clientEvent) == -1)
                 {   
-                    std::cerr << "Erreur lors de l'ajout du socket client à l'instance epoll.\n";
+                    std::cerr << "Erreur lors de l'ajout du socket client à l'instance epoll." << std::endl;
                     close(clientSocket);
                     continue;
                 }
-                clients[clientSocket] = Client(clientSocket, clientAddr, server);
+                clients[clientSocket] = new Client(clientSocket, clientAddr, server);
             }
             else
             {
@@ -99,8 +109,37 @@ int main()
                 ssize_t bytesRead;
                 while ((bytesRead = recv(events[i].data.fd, buffer, sizeof(buffer), 0)) > 0) 
                 {
-                    std::cout << bytesRead << std::endl;
-                    send(events[i].data.fd, buffer, bytesRead, 0);
+                    std::string receivedData(buffer, bytesRead);
+                    if (receivedData.find("JOIN") != std::string::npos)
+                    {
+                        if (channel->findClient(events[i].data.fd))
+                            send(events[i].data.fd, "You are already in a channel", 27, 0);
+                        else if (clients[events[i].data.fd]->getNickname().empty())
+                            send(events[i].data.fd, "You need a nickname to enter that channel.", 41, 0);
+                        else
+                            channel->inviteClient(clients[events[i].data.fd]);
+                    }
+                    else if (receivedData.find("NICK") != std::string::npos)
+                    {
+                        send(events[i].data.fd, "Choose your nickname : ", 21, 0);
+                        clients[events[i].data.fd]->isExpectingNickname(true);
+                    }
+                    else if (clients[events[i].data.fd]->getExpectingNickname())
+                    {
+                        clients[events[i].data.fd]->setNickname(receivedData);
+                        clients[events[i].data.fd]->isExpectingNickname(false);
+                        send(events[i].data.fd, "Nickname set", 12, 0);
+                    }
+                    else if (channel->findClient(events[i].data.fd))
+                    {
+                        if (!clients[events[i].data.fd]->getNickname().empty())
+                        {
+                            receivedData.insert(0, clients[events[i].data.fd]->getNickname() + " : ");
+                            receivedData.erase(std::remove(receivedData.begin(), receivedData.end(), '\n'), receivedData.end());
+                        }
+                        channel->diffuseMessage(receivedData);
+                    }
+
                 }
             }
         }

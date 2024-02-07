@@ -9,6 +9,8 @@ Client::Client(int clientSocket, sockaddr_in clientAddr, Server *clientServ) : _
     std::cout << "Client created with custom values" << std::endl;
 }
 
+int Client::getSocket() const {return(this->_clientSocket);}
+
 void Client::setClientSocket(int socket)
 {
     this->_clientSocket = socket;
@@ -30,6 +32,18 @@ Client const &Client::operator=(const Client& client) {
     this->_operator = client._operator;
     return *this;
 }
+
+void Client::setNickname(std::string nickname) {
+    this->_nickname = nickname;
+}
+
+void Client::isExpectingNickname(bool value) {
+    this->_expectingNickname = value;
+}
+bool Client::getExpectingNickname() const {
+    return(this->_expectingNickname);
+}
+std::string Client::getNickname() const {return(this->_nickname);}
 
 Client::~Client() {
     std::cout << "Client destroyed" << std::endl;
