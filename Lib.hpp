@@ -5,8 +5,11 @@
 #include <cstring>
 #include <cstdlib>
 #include <csignal>
+#include <vector>
+#include <fcntl.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <sys/epoll.h>
 #include <unordered_map>
 #include "Client.hpp"
 #include "Server.hpp"

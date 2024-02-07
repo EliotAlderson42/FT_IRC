@@ -5,8 +5,18 @@ Client::Client() : _username("default"), _nickname("default"), _password(""){
     std::cout << "Client created with default values" << std::endl;
 }
 
-Client::Client(std::string username, std::string nickname, std::string password, Server *clientServ) : _username(username), _nickname(nickname), _password(password), _clientServer(clientServ) {
+Client::Client(int clientSocket, sockaddr_in clientAddr, Server *clientServ) : _clientSocket(clientSocket), _clientAddr(clientAddr), _clientServer(clientServ) {
     std::cout << "Client created with custom values" << std::endl;
+}
+
+void Client::setClientSocket(int socket)
+{
+    this->_clientSocket = socket;
+}
+
+void Client::setClientAddr(sockaddr_in addr)
+{
+    this->_clientAddr = addr;
 }
 
 Client::Client(const Client& client) : _username(client._username), _nickname(client._nickname), _password(client._password), _operator(client._operator) {

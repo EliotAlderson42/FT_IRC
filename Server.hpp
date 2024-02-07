@@ -13,6 +13,7 @@ class Server {
     void setServerAddr();
     void bindServer();
     void listenServer();
+    int nbClients;
     
     //Getters
     int const getServerSocket();
@@ -23,5 +24,4 @@ class Server {
     std::string _port;
     int _serverSocket = 0;
     sockaddr_in _serverAddr;
-    std::unordered_map<int, Client> _clients;
 };
