@@ -16,6 +16,8 @@ class Server {
     int nbClients;
     
     //Getters
+    std::string getName();
+    std::string getPassword();
     int const getServerSocket();
     
     private:

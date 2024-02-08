@@ -13,6 +13,7 @@ class Channel {
     void diffuseMessage(std::string message);
     Client *findClient(int clientSocket);
 
+    std::string getPassword() const;
     private:
     std::string _name;
     std::string _password;

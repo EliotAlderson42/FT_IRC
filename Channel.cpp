@@ -24,6 +24,8 @@ void Channel::diffuseMessage(std::string message) {
     }
 }
 
+std::string Channel::getPassword() const {return this->_password;}
+
 Client *Channel::findClient(int clientSocket) {
     return _clients[clientSocket];
 }

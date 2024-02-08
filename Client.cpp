@@ -50,3 +50,6 @@ Client::~Client() {
 }
 
 sockaddr_in Client::getClientAddr() const {return(this->_clientAddr);}
+
+void Client::isExpectingPassword(bool value) {this->_expectingPassword = value;}
+bool Client::getExpectingPassword() const {return(this->_expectingPassword);}

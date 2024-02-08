@@ -1,9 +1,6 @@
 #include "Lib.hpp"
 
-
-const int BUFFER_SIZE = 1024;
 int running = 1;
-
 void signalHandler(int signum, siginfo_t *info, void *ptr)
 {
     if (signum == SIGINT)
@@ -46,7 +43,7 @@ int main()
     int epollFd = epoll_create1(0); // je cree l'instance epoll
     if (epollFd == -1)
     {
-        std::cerr << "Erreur lors de la creation de l'instance epoll"  << std::endl;
+        std::cerr << "Error creating epoll instance"  << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -55,7 +52,7 @@ int main()
     events[0].data.fd = server->getServerSocket(); // je recupere le socket 
     if (epoll_ctl(epollFd, EPOLL_CTL_ADD, server->getServerSocket(), &events[0]) == -1) // je lie l'instance epoll avec le socket et la structure de gestion des events
     {
-        std::cerr << "Erreur lors de l'ajout du socket server a l'instance epoll"  << std::endl;
+        std::cerr << "Error adding socket server to epoll instance"  << std::endl;
         return EXIT_FAILURE;
     }
     
@@ -66,7 +63,7 @@ int main()
         {
             if (errno == EINTR) 
                 continue; // Le signal a interrompu l'appel à epoll_wait(), réessayer
-            std::cerr << "Erreur lors de l'appel à epoll_wait()."  << std::endl;
+            std::cerr << "Error calling epoll_wait()."  << std::endl;
             break;
         }
 
@@ -93,16 +90,22 @@ int main()
                 clientEvent.data.fd = clientSocket;
                 if (epoll_ctl(epollFd, EPOLL_CTL_ADD, clientSocket, &clientEvent) == -1)
                 {   
-                    std::cerr << "Erreur lors de l'ajout du socket client à l'instance epoll." << std::endl;
+                    std::cerr << "Error adding client socket to epoll instance." << std::endl;
                     close(clientSocket);
                     continue;
                 }
+                if (!server->getPassword().empty())
+                    handlePassword(server, clientSocket, clientAddr, clients);
+                else
+                {
+                send(clientSocket, "Welcome to the server !\n", 24, 0);
                 clients[clientSocket] = new Client(clientSocket, clientAddr, server);
+                }
             }
             else
             {
                 if (setNonBlocking(events[i].data.fd) == -1) {
-                    std::cerr << "Erreur lors de la mise en mode non bloquant du socket." << std::endl;
+                    std::cerr << "Error setting socket to non-blocking mode." << std::endl;
                     continue;
                 }
                 char buffer[BUFFER_SIZE];
@@ -116,13 +119,22 @@ int main()
                     if (receivedData.find("JOIN") != std::string::npos)
                     {
                         if (channel->findClient(events[i].data.fd))
-                            send(events[i].data.fd, "You are already in a channel", 27, 0);
+                            send(events[i].data.fd, "You are already in a channel.\n", 30, 0);
                         else if (clients[events[i].data.fd]->getNickname().empty())
-                            send(events[i].data.fd, "You need a nickname to enter that channel.", 41, 0);
+                            send(events[i].data.fd, "You need a nickname to enter that channel.\n", 43, 0);
+                        else if (!channel->getPassword().empty())
+                        {
+                            send(events[i].data.fd, "Enter the channel's password : ", 31, 0);
+                            clients[events[i].data.fd]->isExpectingPassword(true);
+                        }
                         else
+                        {
+                            send(events[i].data.fd, "Channel joined !\n", 18, 0);
                             channel->inviteClient(clients[events[i].data.fd]);
+                        }
                     }
-                    
+                    else if (clients[events[i].data.fd]->getExpectingPassword())
+                        handleChannelPassword(clients, events[i].data.fd, receivedData, channel);
                     else if (channel->findClient(events[i].data.fd))
                     {
                         if (!clients[events[i].data.fd]->getNickname().empty())

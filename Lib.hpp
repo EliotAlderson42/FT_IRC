@@ -16,4 +16,9 @@
 #include "Server.hpp"
 #include "Channel.hpp"
 
+const int BUFFER_SIZE = 1024;
+extern int running;
+
 void NICK(std::string receivedData, int i, Client *client);
+void handlePassword(Server *server, int clientSocket, sockaddr_in clientAddr, std::unordered_map<int, Client *> &clients);
+void handleChannelPassword(std::unordered_map<int, Client *> &clients, int fd, std::string &receivedData, Channel *channel);
