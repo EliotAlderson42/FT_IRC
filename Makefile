@@ -1,20 +1,48 @@
 NAME = irc
-SRC = main.cpp Server.cpp Client.cpp Channel.cpp NICK.cpp Password.cpp
-OBJ = $(SRC:.cpp=.o)
+SRC_FILES = $(addprefix srcs/, main.cpp Server.cpp Client.cpp Channel.cpp NICK.cpp Password.cpp)
+OBJS		= $(SRC_FILES:%.cpp=$(OBJS_DIR)/%.o)
 C = c++
-CFLAGS = -g3 -Wall -Wextra -Werror -std=c++98
 
-all: $(NAME)
+# all: $(NAME)
 
-$(NAME): $(OBJ)
-	$(C) $(CFLAGS) -o $(NAME) $(OBJ)
+# $(NAME): $(OBJ)
+# 	$(C) $(CFLAGS) -o $(NAME) $(OBJ)
 
-clean:
-	rm -f $(OBJ)
+# clean:
+# 	rm -f $(OBJ)
+
+# fclean: clean
+# 	rm -f $(NAME)
+
+# re: fclean all
+
+# .PHONY: all clean fclean re
+
+OBJS_DIR	= .objets
+
+
+CC			= c++
+
+CFLAGS		= -g3   -Iincludes # -std=c++98 -Wall -Wextra -Werror -Iincludes
+
+all : $(NAME)
+
+$(NAME) : $(OBJS_DIR) $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
+	
+$(OBJS_DIR) :
+	@mkdir $(OBJS_DIR)
+	@mkdir $(OBJS_DIR)/srcs
+
+$(OBJS) : $(OBJS_DIR)/%.o : %.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean :
+	rm -rf $(OBJS_DIR)
 
 fclean: clean
-	rm -f $(NAME)
-
-re: fclean all
+	rm -rf $(NAME)
+	
+re : fclean all
 
 .PHONY: all clean fclean re
