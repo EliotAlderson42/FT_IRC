@@ -1,11 +1,12 @@
 #include "Lib.hpp"
 
 
-Client::Client() : _username("default"), _nickname("default"), _password(""){
+Client::Client() : _username("User"), _nickname("User"), _password(""){
     std::cout << "Client created with default values" << std::endl;
 }
 
-Client::Client(int clientSocket, sockaddr_in clientAddr, Server *clientServ) : _clientSocket(clientSocket), _clientAddr(clientAddr), _clientServer(clientServ) {
+Client::Client(int clientSocket, sockaddr_in clientAddr) : _clientSocket(clientSocket), _clientAddr(clientAddr) {
+    this->_nickname = "User";
     std::cout << "Client created with custom values" << std::endl;
 }
 

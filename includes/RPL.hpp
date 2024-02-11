@@ -1,11 +1,13 @@
 #ifndef RPL_HPP
 # define  RPL_HPP
 
+# include "Lib.hpp"
+
 # define user_id(nickname, username, cmd) (":" + nickname + "!~" + username + "@localhost " + cmd + " ") // used
 
             /* = = =    TO CONNECT    = = = */
 // 001
-# define RPL_WELCOME(nickname) (":localhost 001 " + nickname + " :Welcome to the Internet Relay Network " + nickname + "\r\n") // used
+# define RPL_WELCOME(nickname) (":localhost 001 " +  nickname + " :Welcome to the Internet Relay Network " + nickname + "\r\n") // used
 
             /* = = =    MODE    = = = */
 # define SET_CHANEL_MODE(nickname, username, cmd, chanel, mode) (user_id(nickname, username, cmd) + "#" + chanel + " +" + mode + "\r\n") //used

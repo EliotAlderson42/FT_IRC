@@ -5,7 +5,7 @@ class Server;
 class Client {
     public:
     Client();
-    Client(int _clientSocket, sockaddr_in _clientAddr, Server *clientServ);
+    Client(int _clientSocket, sockaddr_in _clientAddr);
     Client(const Client& client);
     Client const &operator=(const Client& client);
     ~Client();
@@ -32,7 +32,7 @@ class Client {
     bool _operator = false;
     int _clientSocket;
     sockaddr_in _clientAddr;
-    Server *_clientServer;
+    // Server *_clientServer;
     bool _expectingNickname = false;
     bool _expectingPassword = false;
 };
