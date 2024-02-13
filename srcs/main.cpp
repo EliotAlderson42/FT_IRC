@@ -24,7 +24,7 @@ int setNonBlocking(int sockfd) {
 
 int main(int argc, char **argv)
 {
-    if (argc != 2)
+    if (argc < 2)
         return (std::cout << "pas le bon nombre d'arguments\n", 0);
     struct sigaction sa;
     memset(&sa, 0, sizeof(sa));
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
     // Channel *channel = new Channel("default", "default");
-    Server *server = new Server("default", "default", argv[1]);
+    Server *server = new Server("default", argv[2], argv[1]);
     server->initServ();
     server->mainLoop();
     close(server->getServerSocket());

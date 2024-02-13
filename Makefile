@@ -23,7 +23,7 @@ OBJS_DIR	= .objets
 
 CC			= c++
 
-CFLAGS		= -g3   -Iincludes # -std=c++98 -Wall -Wextra -Werror -Iincludes
+CFLAGS		= -g3   -Iincludes #-std=c++98 -Wall -Wextra -Werror -Iincludes
 
 all : $(NAME)
 

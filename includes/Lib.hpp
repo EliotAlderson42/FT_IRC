@@ -11,8 +11,9 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
-#include <unordered_map>
+#include <map>
 #include <algorithm>
+#include <cerrno>
 #include "Client.hpp"
 #include "Server.hpp"
 #include "Channel.hpp"
@@ -30,8 +31,7 @@
 const int BUFFER_SIZE = 1024;
 extern int running;
 
+std::string toString(int value);
 void NICK(std::string receivedData, int i, Client *client);
-void handlePassword(Server *server, int clientSocket, sockaddr_in clientAddr, std::unordered_map<int, Client *> &clients);
-void handleChannelPassword(std::unordered_map<int, Client *> &clients, int fd, std::string &receivedData, Channel *channel);
 std::string firstWord(std::string &phrase);
 std::vector<std::string> splitCommands(const std::string& str);

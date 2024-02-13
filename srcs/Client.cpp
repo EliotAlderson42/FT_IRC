@@ -7,8 +7,8 @@ Client::Client() : _username("User"), _nickname("User"), _password(""){
 }
 
 Client::Client(int clientSocket, sockaddr_in clientAddr) : _clientSocket(clientSocket), _clientAddr(clientAddr) {
-    this->_nickname = "nick" + std::to_string(dflt);
-    this->_username = "uname" + std::to_string(dflt);
+    this->_nickname = "nick" + toString(dflt);
+    this->_username = "uname" + toString(dflt);
     dflt++;
     std::cout << "Client created with custom values" << std::endl;
 }
@@ -56,7 +56,7 @@ void Client::isExpectingUsername(bool value) {
     this->_expectingUsername = value;
 }
 
-bool Client::getExpectingUsername() const {return(this->_expectingUsername);}
+int Client::getExpectingUsername() const {return(this->_expectingUsername);}
 
 bool Client::getExpectingNickname() const {
     return(this->_expectingNickname);

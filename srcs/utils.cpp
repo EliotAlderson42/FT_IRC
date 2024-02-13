@@ -1,5 +1,11 @@
 #include "Lib.hpp"
 
+std::string toString(int value) {
+    std::stringstream ss;
+    ss << value;
+    return ss.str();
+}
+
 std::string firstWord(std::string &phrase) {
     std::istringstream iss(phrase);
     std::string premier_mot;

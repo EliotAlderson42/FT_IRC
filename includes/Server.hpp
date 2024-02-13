@@ -46,8 +46,8 @@ class Server {
     int _epollFd;
     int _numEvents;
     sockaddr_in _serverAddr;
-    std::unordered_map<std::string, void(Server::*)(std::string, int)> _funcTab;
-    std::unordered_map<int, Client *> _clients;
-    std::unordered_map<std::string, Channel *> _channels;
+    std::map<std::string, void(Server::*)(std::string, int)> _funcTab;
+    std::map<int, Client *> _clients;
+    std::map<std::string, Channel *> _channels;
     std::vector<struct epoll_event> _events;// je cree la structure de gestion des events
 };

@@ -1,6 +1,6 @@
 #include "Lib.hpp"
 
-Server::Server() : _name("localhost"), _password(""), _port("6667"), _serverSocket(0) {
+Server::Server() : _name("localhost"), _password("default"), _port("6667"), _serverSocket(0) {
     setServerSocket();
     setServerAddr();
     bindServer();
@@ -45,10 +45,12 @@ void Server::setServerSocket() {
 
 void Server::setServerAddr() {
 
+    int port;
+    std::istringstream(this->_port) >> port;
     std::memset(&this->_serverAddr, 0, sizeof(this->_serverAddr));
     this->_serverAddr.sin_family = AF_INET;
     this->_serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-    this->_serverAddr.sin_port = htons(std::stoi(this->_port));   
+    this->_serverAddr.sin_port = htons(port);   
 }
 
 void Server::bindServer() {
@@ -225,7 +227,7 @@ void Server::nick(std::string str, int socket)
     }
     else
     {
-        for (std::unordered_map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
+        for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
         {
             if (it->second->getNickname() == sub)
             {
@@ -243,6 +245,7 @@ void Server::nick(std::string str, int socket)
 void Server::pass(std::string str, int socket)
 {
     std::string pass = str.substr(5);
+    std::cout << "pass = " << pass << std::endl;
     if (pass == this->getPassword())
     {
         std::string msg = "Correct Password !\n";
@@ -262,7 +265,7 @@ void Server::user(std::string str, int socket)
     std::string word;
     iss >> word;
     iss >> word;
-    if (_clients[socket]->getExpectingUsername() == false)
+    if (_clients[socket]->getExpectingUsername() == 0)
     {
         std::string msg = ERR_ALREADYREGISTRED(_clients[socket]->getNickname());
         send(socket, msg.c_str(), msg.size(), 0);
