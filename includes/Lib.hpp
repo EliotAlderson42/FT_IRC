@@ -34,3 +34,4 @@ void NICK(std::string receivedData, int i, Client *client);
 void handlePassword(Server *server, int clientSocket, sockaddr_in clientAddr, std::unordered_map<int, Client *> &clients);
 void handleChannelPassword(std::unordered_map<int, Client *> &clients, int fd, std::string &receivedData, Channel *channel);
 std::string firstWord(std::string &phrase);
+std::vector<std::string> splitCommands(const std::string& str);

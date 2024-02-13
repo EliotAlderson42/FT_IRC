@@ -1,5 +1,5 @@
 NAME = irc
-SRC_FILES = $(addprefix srcs/, main.cpp Server.cpp Client.cpp Channel.cpp NICK.cpp utils.cpp)
+SRC_FILES = $(addprefix srcs/, main.cpp Server.cpp Client.cpp Channel.cpp utils.cpp)
 OBJS		= $(SRC_FILES:%.cpp=$(OBJS_DIR)/%.o)
 C = c++
 

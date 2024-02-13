@@ -16,10 +16,14 @@ Server::Server(std::string name, std::string password, std::string port) : _name
     _funcTab["JOIN"] = &Server::join;
 	_funcTab["PRIVMSG"] = &Server::privmsg;
 	_funcTab["PING"] = &Server::pong;
+	_funcTab["WHOIS"] = &Server::whois;
+    _funcTab["CAP"] = &Server::capls;
+    _funcTab["PASS"] = &Server::pass;
+    _funcTab["NICK"] = &Server::nick;
+    _funcTab["USER"] = &Server::user;
 
     std::cout << "Server created with custom values" << std::endl;
 }
-
 
 Server::~Server() {
     close(_serverSocket);
@@ -111,9 +115,13 @@ int Server::addClient()
     if (fcntl(clientSocket, F_SETFL, O_NONBLOCK) == -1)
         std::cerr << "Error setting socket to non-blocking mode.\n";
     this->_clients[clientSocket] = new Client(clientSocket, clientAddr);
-    std::string msg = RPL_WELCOME(_clients[clientSocket]->getNickname());
-    send(clientSocket, msg.c_str(), msg.size(), 0);
     return (1);
+}
+
+void Server::removeClient(int socket)
+{
+    close(socket);
+    _clients.erase(socket);
 }
 
 void Server::join(std::string str, int socket)
@@ -167,7 +175,7 @@ void Server::privmsg(std::string str, int socket)
     	// else
     	// {
     	//     \\\\\\
-    	//     \\\\\\ dans le cas ou il n'y aurait rien a envoyer (le cas me aprait impossible)
+    	//     \\\\\\ dans le cas ou il n'y aurait rien a envoyer (le cas me parait impossible)
     	//     \\\\\\
     	// }.
     	std::string msg = RPL_PRIVMSG_CHANNEL(_clients[socket]->getNickname(), word.substr(1), toSend);
@@ -178,6 +186,114 @@ void Server::privmsg(std::string str, int socket)
 // 	{
 
 // 	}
+}
+
+void::Server::whois(std::string str, int socket)
+{
+    std::istringstream iss(str);
+    std::string word;
+    iss >> word;
+    iss >> word;
+    std::cout << "word = " << word << std::endl;
+    if (word == _clients[socket]->getNickname())
+    {
+        std::string msg = RPL_WHOISUSER(_clients[socket]->getNickname(), this->getName(), _clients[socket]->getUsername());
+        send(socket, msg.c_str(), msg.size(), 0);
+        msg = RPL_ENDOFWHOIS(_clients[socket]->getNickname());
+        send(socket, msg.c_str(), msg.size(), 0);
+    }
+    else
+    {
+        std::string msg = ERR_NOSUCHNICK(_clients[socket]->getNickname() , word);
+        send(socket, msg.c_str(), msg.size(), 0);
+    }
+}
+
+void Server::nick(std::string str, int socket)
+{
+    std::string sub = str.substr(5);
+
+    if (sub.empty())
+    {
+        std::string msg = ERR_NONICKNAMEGIVEN(_clients[socket]->getNickname());
+        send(socket, msg.c_str(), msg.size(), 0);
+    }
+    else if (sub.find("#") != std::string::npos || sub.find(":") != std::string::npos || sub.find(" ") != std::string::npos || sub.find("\t") != std::string::npos || sub.find("\r") != std::string::npos || sub.find("\n") != std::string::npos || sub.find("\v") != std::string::npos || sub.find("\f") != std::string::npos)
+    {
+        std::string msg = ERR_ERRONEUSNICKNAME(sub);
+        send(socket, msg.c_str(), msg.size(), 0);
+    }
+    else
+    {
+        for (std::unordered_map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
+        {
+            if (it->second->getNickname() == sub)
+            {
+                std::string msg = ERR_NICKNAMEINUSE(sub);
+                send(socket, msg.c_str(), msg.size(), 0);
+                return ;
+            }
+        }
+        _clients[socket]->setNickname(sub);
+        std::string msg = "Nickname changed to " + sub + "\n";
+        send(socket, msg.c_str(), msg.size(), 0);
+    }
+}
+
+void Server::pass(std::string str, int socket)
+{
+    std::string pass = str.substr(5);
+    if (pass == this->getPassword())
+    {
+        std::string msg = "Correct Password !\n";
+        send(socket, msg.c_str(), msg.size(), 0);
+    }
+    else
+    {
+        std::string msg = ERR_PASSWDMISMATCH(_clients[socket]->getNickname());
+        send(socket, msg.c_str(), msg.size(), 0);
+        removeClient(socket);
+    }
+}
+
+void Server::user(std::string str, int socket)
+{
+    std::istringstream iss(str);
+    std::string word;
+    iss >> word;
+    iss >> word;
+    if (_clients[socket]->getExpectingUsername() == false)
+    {
+        std::string msg = ERR_ALREADYREGISTRED(_clients[socket]->getNickname());
+        send(socket, msg.c_str(), msg.size(), 0);
+    }
+    else if (word.empty())
+    {
+        std::string msg = ERR_NEEDMOREPARAMS(_clients[socket]->getNickname(), "USER");
+        send(socket, msg.c_str(), msg.size(), 0);
+    }
+    else
+    {
+        _clients[socket]->setUsername(word);
+        std::string msg = "Username changed to " + word + "\n";
+        send(socket, msg.c_str(), msg.size(), 0);
+    }
+}
+
+void Server::capls(std::string str, int socket)
+{
+   std::vector<std::string> commands = splitCommands(str);
+   std::vector<std::string>::iterator it = commands.begin();
+   
+   if (it != commands.end()) // Check to avoid incrementing an end iterator
+       ++it;
+
+   for(; it != commands.end(); it++)
+   {
+       std::string word = *it;
+       std::cout << "word = " << word << std::endl;
+       (this->*_funcTab[word.substr(0,4)])(word,socket);
+   }
 }
 
 void Server::mainLoop()
@@ -204,7 +320,7 @@ void Server::mainLoop()
                     ssize_t bytesRead;
                     bytesRead = recv(_events[i].data.fd, buffer, sizeof(buffer), 0);
                     std::cout << "\033[35m"<< "Receive : " << buffer << "\033[0m" << std::endl;
-                    std::string neww(buffer);
+                    std::string neww(buffer); 
                     if (this->_funcTab.find(firstWord(neww)) != this->_funcTab.end())
                     {
                         std::string neww(buffer);

@@ -1,21 +1,27 @@
 #include "Lib.hpp"
 
+int dflt = 0;
 
 Client::Client() : _username("User"), _nickname("User"), _password(""){
     std::cout << "Client created with default values" << std::endl;
 }
 
 Client::Client(int clientSocket, sockaddr_in clientAddr) : _clientSocket(clientSocket), _clientAddr(clientAddr) {
-    this->_nickname = "User";
+    this->_nickname = "nick" + std::to_string(dflt);
+    this->_username = "uname" + std::to_string(dflt);
+    dflt++;
     std::cout << "Client created with custom values" << std::endl;
 }
 
 int Client::getSocket() const {return(this->_clientSocket);}
 
+std::string Client::getUsername() const {return(this->_username);}
+
 void Client::setClientSocket(int socket)
 {
     this->_clientSocket = socket;
 }
+
 
 void Client::setClientAddr(sockaddr_in addr)
 {
@@ -34,6 +40,10 @@ Client const &Client::operator=(const Client& client) {
     return *this;
 }
 
+void Client::setUsername(std::string username) {
+    this->_username = username;
+}
+
 void Client::setNickname(std::string nickname) {
     this->_nickname = nickname;
 }
@@ -41,6 +51,13 @@ void Client::setNickname(std::string nickname) {
 void Client::isExpectingNickname(bool value) {
     this->_expectingNickname = value;
 }
+
+void Client::isExpectingUsername(bool value) {
+    this->_expectingUsername = value;
+}
+
+bool Client::getExpectingUsername() const {return(this->_expectingUsername);}
+
 bool Client::getExpectingNickname() const {
     return(this->_expectingNickname);
 }

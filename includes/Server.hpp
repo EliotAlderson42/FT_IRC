@@ -21,8 +21,11 @@ class Server {
     void    join(std::string str, int socket);
     void    privmsg(std::string str, int socket);
     void    pong(std::string str, int socket);
-
-
+    void    whois(std::string str, int socket);
+    void    capls(std::string str, int socket);
+    void    pass(std::string str, int socket);
+    void    nick(std::string str, int socket);
+    void    user(std::string str, int socket);
     //Getters
     std::string getName();
     std::string getPassword();
@@ -32,7 +35,8 @@ class Server {
     int    initServ();
     void    mainLoop();
     int    addClient();
-    
+    void    removeClient(int socket);
+
     private:
     std::string _name;
     std::string _password;

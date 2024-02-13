@@ -18,9 +18,13 @@ class Client {
     void setNickname(std::string nickname);
     void isExpectingNickname(bool value);
     bool getExpectingNickname() const;
+    std::string getUsername() const;
     void isExpectingPassword(bool value);
     bool getExpectingPassword() const;
-
+    void setUsername(std::string username);
+    void isExpectingUsername(bool value);
+    bool getExpectingUsername() const;
+    
     private:
     std::string _username;
     std::string _nickname;
@@ -34,5 +38,6 @@ class Client {
     sockaddr_in _clientAddr;
     // Server *_clientServer;
     bool _expectingNickname = false;
+    bool _expectingUsername = true;
     bool _expectingPassword = false;
 };
