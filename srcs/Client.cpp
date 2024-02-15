@@ -59,7 +59,7 @@ void Client::setUsername(std::string username) {
 }
 
 void Client::setNickname(std::string nickname) {
-    this->_nickname = RED + nickname + RESET;
+    this->_nickname = nickname ;
 }
 
 void Client::isExpectingNickname(bool value) {

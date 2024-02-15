@@ -187,7 +187,7 @@ void Server::privmsg(std::string str, int socket)
     	//     \\\\\\ dans le cas ou il n'y aurait rien a envoyer (le cas me parait impossible)
     	//     \\\\\\
     	// }.
-    	std::string msg = RPL_PRIVMSG_CHANNEL(_clients[socket]->getNickname(), word.substr(1), toSend);
+    	std::string msg = RPL_PRIVMSG_CHANNEL((CYAN + _clients[socket]->getNickname() + RESET), word.substr(1), toSend);
 		_channels[word]->sendChanMsg(socket, msg);
         // std::cout << msg << std::endl;
 		// send(socket, msg.c_str(), msg.size(), 0);
@@ -222,7 +222,7 @@ void    Server::whois(std::string str, int socket)
 void Server::nick(std::string str, int socket)
 {
     std::string sub = str.substr(5, 6);
-    std::cout << sub << std::endl;
+    std::cout << "SUB = "<< sub << std::endl;
     if (sub.empty())
     {
         std::string msg = ERR_NONICKNAMEGIVEN(_clients[socket]->getNickname());
@@ -328,9 +328,8 @@ void Server::mainLoop()
 {
     while (running == 1)
     {
-        std::cout << "TOUR\n";
         this->_numEvents = epoll_wait(this->_epollFd, this->_events.data(), 10, -1);
-        std::cout << "numevents = " << this->_numEvents;
+        std::cout << "numevents = " << this->_numEvents << std::endl;
         if (this->_numEvents == -1)
         {
             if (errno == EINTR)
@@ -346,15 +345,11 @@ void Server::mainLoop()
                 this->addClient();
             else
             {
-                    std::cout << "TOURBOUCLE\n";    
                     char buffer[1024] = {0};
                     ssize_t bytesRead;
                     bytesRead = recv(_events[i].data.fd, buffer, sizeof(buffer), 0);
                     std::cout << "\033[35m"<< "Receive : " << buffer << "\033[0m" << std::endl;
                     std::string neww(buffer);
-                    // if (firstWord(neww) == "CAP")
-                    // {
-                    // } 
                     if (this->_funcTab.find(firstWord(neww)) != this->_funcTab.end())
                     {
                         std::cout << "LE BUFFER : " << neww << std::endl;
