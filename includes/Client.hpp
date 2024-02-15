@@ -24,12 +24,16 @@ class Client {
     void setUsername(std::string username);
     void isExpectingUsername(bool value);
     int getExpectingUsername() const;
+    void setIsConnect(int nb);
+    int getIsConnect();
+    int getNickLength();
     
     private:
     std::string _username;
     std::string _nickname;
     std::string _password;
     ssize_t _dataSent;
+    int _isConnect = 1;
     int destination;
     int channel;
     ssize_t _dataReceived;

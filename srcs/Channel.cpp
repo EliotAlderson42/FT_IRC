@@ -17,6 +17,15 @@ void    Channel::addSocket(int socket)
     this->_sockets.push_back(socket);
 }
 
+void    Channel::sendChanMsg(int sock, std::string msg)
+{
+    // std::string msg = RPL_PRIVMSG_CHANNEL(nickname, this->_name, toSend);
+    for (std::vector<int>::iterator it = this->_sockets.begin(); it != this->_sockets.end(); ++it)
+    {
+        if (*it != sock)
+            send(*it, msg.c_str(), msg.size(), 0);
+    }
+}
 // void    Channel::sendGrpMsg(std::string str)
 // {
 //     std::string toSend;

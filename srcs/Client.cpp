@@ -22,6 +22,20 @@ void Client::setClientSocket(int socket)
     this->_clientSocket = socket;
 }
 
+void    Client::setIsConnect(int nb)
+{
+    this->_isConnect = nb;
+}
+
+int    Client::getIsConnect()
+{
+    return (this->_isConnect);
+}
+
+int Client::getNickLength()
+{
+    return (this->_nickname.size());
+}
 
 void Client::setClientAddr(sockaddr_in addr)
 {
@@ -45,7 +59,7 @@ void Client::setUsername(std::string username) {
 }
 
 void Client::setNickname(std::string nickname) {
-    this->_nickname = nickname;
+    this->_nickname = RED + nickname + RESET;
 }
 
 void Client::isExpectingNickname(bool value) {

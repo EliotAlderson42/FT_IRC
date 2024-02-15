@@ -30,6 +30,8 @@ class Server {
     std::string getName();
     std::string getPassword();
     int const getServerSocket();
+    int getPassLength();
+    int getNickLength();
 
     //utils
     int    initServ();

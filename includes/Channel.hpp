@@ -12,6 +12,7 @@ class Channel {
     // void getClient (int clientSocket);
     // void diffuseMessage(std::string message);
     // Client *findClient(int clientSocket);
+    void    sendChanMsg(int sock, std::string msg);
     void    addSocket(int socket);
     std::string getPassword() const;
     private:

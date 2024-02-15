@@ -117,6 +117,8 @@ int Server::addClient()
     if (fcntl(clientSocket, F_SETFL, O_NONBLOCK) == -1)
         std::cerr << "Error setting socket to non-blocking mode.\n";
     this->_clients[clientSocket] = new Client(clientSocket, clientAddr);
+    // std::string msg = RPL_WELCOME(_clients[clientSocket]->getNickname());
+    // send(clientSocket, msg.c_str(), msg.size(), 0);
     return (1);
 }
 
@@ -125,6 +127,11 @@ void Server::removeClient(int socket)
     close(socket);
     _clients.erase(socket);
 }
+int    Server::getPassLength()
+{
+    return (this->_password.size());
+}
+
 
 void Server::join(std::string str, int socket)
 {
@@ -181,8 +188,9 @@ void Server::privmsg(std::string str, int socket)
     	//     \\\\\\
     	// }.
     	std::string msg = RPL_PRIVMSG_CHANNEL(_clients[socket]->getNickname(), word.substr(1), toSend);
-		std::cout << msg << std::endl;
-		send(socket, msg.c_str(), msg.size(), 0);
+		_channels[word]->sendChanMsg(socket, msg);
+        // std::cout << msg << std::endl;
+		// send(socket, msg.c_str(), msg.size(), 0);
 	}
 // 	else
 // 	{
@@ -190,7 +198,7 @@ void Server::privmsg(std::string str, int socket)
 // 	}
 }
 
-void::Server::whois(std::string str, int socket)
+void    Server::whois(std::string str, int socket)
 {
     std::istringstream iss(str);
     std::string word;
@@ -213,8 +221,8 @@ void::Server::whois(std::string str, int socket)
 
 void Server::nick(std::string str, int socket)
 {
-    std::string sub = str.substr(5);
-
+    std::string sub = str.substr(5, 6);
+    std::cout << sub << std::endl;
     if (sub.empty())
     {
         std::string msg = ERR_NONICKNAMEGIVEN(_clients[socket]->getNickname());
@@ -227,35 +235,41 @@ void Server::nick(std::string str, int socket)
     }
     else
     {
-        for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
-        {
-            if (it->second->getNickname() == sub)
-            {
-                std::string msg = ERR_NICKNAMEINUSE(sub);
-                send(socket, msg.c_str(), msg.size(), 0);
-                return ;
-            }
-        }
+        // for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
+        // {
+        //     if (it->second->getNickname() == sub)
+        //     {
+        //         std::string msg = ERR_NICKNAMEINUSE(sub);
+        //         send(socket, msg.c_str(), msg.size(), 0);
+        //         std::cout << "PUTEEEEE\n";
+        //         return ;
+        //     }
+        // }
         _clients[socket]->setNickname(sub);
         std::string msg = "Nickname changed to " + sub + "\n";
         send(socket, msg.c_str(), msg.size(), 0);
     }
 }
 
+
 void Server::pass(std::string str, int socket)
 {
-    std::string pass = str.substr(5);
+    std::string pass = str.substr(5, this->getPassLength());
+    // pass = str.substr(0, 4);
     std::cout << "pass = " << pass << std::endl;
     if (pass == this->getPassword())
     {
         std::string msg = "Correct Password !\n";
         send(socket, msg.c_str(), msg.size(), 0);
+        _clients[socket]->setIsConnect(1);
     }
     else
     {
+        std::cout << "salut les zgeg\n";
         std::string msg = ERR_PASSWDMISMATCH(_clients[socket]->getNickname());
         send(socket, msg.c_str(), msg.size(), 0);
-        removeClient(socket);
+        _clients[socket]->setIsConnect(0);
+        // removeClient(socket);
     }
 }
 
@@ -293,17 +307,30 @@ void Server::capls(std::string str, int socket)
 
    for(; it != commands.end(); it++)
    {
-       std::string word = *it;
-       std::cout << "word = " << word << std::endl;
+        std::string word = *it;
+        std::cout << "word = " << word << std::endl;
+        if (_clients[socket]->getIsConnect() == 0)
+        {
+            close(socket);
+            _clients.erase(socket);
+            return ;
+        }
+       if (word.substr(0, 4) == "MODE" || word.substr(0, 5) == "WHOIS")
+            continue ;
        (this->*_funcTab[word.substr(0,4)])(word,socket);
+       std::cout << "pipi\n";
    }
+    std::string msg = RPL_WELCOME(_clients[socket]->getNickname());
+    send(socket, msg.c_str(), msg.size(), 0);
 }
 
 void Server::mainLoop()
 {
     while (running == 1)
     {
+        std::cout << "TOUR\n";
         this->_numEvents = epoll_wait(this->_epollFd, this->_events.data(), 10, -1);
+        std::cout << "numevents = " << this->_numEvents;
         if (this->_numEvents == -1)
         {
             if (errno == EINTR)
@@ -319,13 +346,18 @@ void Server::mainLoop()
                 this->addClient();
             else
             {
+                    std::cout << "TOURBOUCLE\n";    
                     char buffer[1024] = {0};
                     ssize_t bytesRead;
                     bytesRead = recv(_events[i].data.fd, buffer, sizeof(buffer), 0);
                     std::cout << "\033[35m"<< "Receive : " << buffer << "\033[0m" << std::endl;
-                    std::string neww(buffer); 
+                    std::string neww(buffer);
+                    // if (firstWord(neww) == "CAP")
+                    // {
+                    // } 
                     if (this->_funcTab.find(firstWord(neww)) != this->_funcTab.end())
                     {
+                        std::cout << "LE BUFFER : " << neww << std::endl;
                         std::string neww(buffer);
                         (this->*_funcTab[firstWord(neww)])(neww, _events[i].data.fd);
                     }
