@@ -117,8 +117,8 @@ int Server::addClient()
     if (fcntl(clientSocket, F_SETFL, O_NONBLOCK) == -1)
         std::cerr << "Error setting socket to non-blocking mode.\n";
     this->_clients[clientSocket] = new Client(clientSocket, clientAddr);
-    // std::string msg = RPL_WELCOME(_clients[clientSocket]->getNickname());
-    // send(clientSocket, msg.c_str(), msg.size(), 0);
+    std::string msg = RPL_WELCOME(_clients[clientSocket]->getNickname());
+    send(clientSocket, msg.c_str(), msg.size(), 0);
     return (1);
 }
 
@@ -246,7 +246,9 @@ void Server::nick(std::string str, int socket)
         //     }
         // }
         _clients[socket]->setNickname(sub);
-        std::string msg = "Nickname changed to " + sub + "\n";
+        // std::string msg = RPL_WELCOME(_clients[socket]->getNickname());
+        // send(socket, msg.c_str(), msg.size(), 0);
+        std::string msg = ":localhost 001 " + sub + " :Nickname changed to " + sub + "\n";
         send(socket, msg.c_str(), msg.size(), 0);
     }
 }
@@ -318,10 +320,9 @@ void Server::capls(std::string str, int socket)
        if (word.substr(0, 4) == "MODE" || word.substr(0, 5) == "WHOIS")
             continue ;
        (this->*_funcTab[word.substr(0,4)])(word,socket);
-       std::cout << "pipi\n";
    }
-    std::string msg = RPL_WELCOME(_clients[socket]->getNickname());
-    send(socket, msg.c_str(), msg.size(), 0);
+    // std::string msg = RPL_WELCOME(_clients[socket]->getNickname());
+    // send(socket, msg.c_str(), msg.size(), 0);
 }
 
 void Server::mainLoop()
