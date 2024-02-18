@@ -26,6 +26,8 @@ class Server {
     void    pass(std::string str, int socket);
     void    nick(std::string str, int socket);
     void    user(std::string str, int socket);
+    void    quit(std::string str, int socket);
+    
     //Getters
     std::string getName();
     std::string getPassword();

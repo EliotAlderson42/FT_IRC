@@ -35,3 +35,22 @@ std::string toString(int value);
 void NICK(std::string receivedData, int i, Client *client);
 std::string firstWord(std::string &phrase);
 std::vector<std::string> splitCommands(const std::string& str);
+
+                                    //             TO_DO LIST:
+
+                                    // 1 : Commande KICK;
+
+                                    // 2 : Commande INVITE;
+
+                                    // 3 : Commande TOPIC;
+
+                                    // 4 : Commande QUIT;
+
+                                    // 5 : Commande LIST;
+
+                                    // 6 : Commande MODE : [flags]
+                                    //                     -/+ i;
+                                    //                     -/+ t;
+                                    //                     -/+ k;
+                                    //                     -/+ o;
+                                    //                     -/+ l;

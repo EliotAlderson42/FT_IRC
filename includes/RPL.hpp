@@ -79,9 +79,9 @@
 # define ERR_ERRONEUSNICKNAME(nickname) (":localhost 432 * " + nickname + " :Erroneous nickname\r\n")
 
             /* = = =    PRV MESSAGES     = = = */
-# define RPL_PRIVMSG_CHANNEL(nickname, channel, msg) (":" + nickname + " PRIVMSG #" + channel + " " + msg + "\r\n") //used
+# define RPL_PRIVMSG_CHANNEL(nickname, channel, msg) (":" + nickname + " PRIVMSG " + channel + " " + msg + "\r\n") //used
 
-# define CLIENT_ID(nickname, username, command) (":" + nickname + "!~" + username + "@" + "localhost" + " " + command + " ")
+# define CLIENT_ID(nickname, username, command) (":" + nickname + "!~" + username + "@" + "eliotalderson" + " " + command + " ")
 # define RPL_PRIVMSG_CLIENT(nickname, username, dest, msg) (CLIENT_ID(nickname, username, "PRIVMSG") + dest + " :" + msg + "\r\n") //used
 
 # define ERR_NOTEXTTOSEND(nickname) (nickname + " :No text to send\r\n") //

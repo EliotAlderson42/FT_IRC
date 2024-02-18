@@ -11,8 +11,8 @@ class Client {
     ~Client();
 
     sockaddr_in  getClientAddr() const;
-    void setClientSocket(int socket);
     void setClientAddr(sockaddr_in addr);
+    void setClientSocket(int socket);
     int getSocket() const;
     std::string getNickname() const;
     void setNickname(std::string nickname);
@@ -27,17 +27,19 @@ class Client {
     void setIsConnect(int nb);
     int getIsConnect();
     int getNickLength();
+    int getIsOperator() const;
+    void setIsOperator(int nb);
     
     private:
     std::string _username;
     std::string _nickname;
     std::string _password;
     ssize_t _dataSent;
-    int _isConnect = 1;
+    int _isConnect = 0;
+    int _isOperator = 0;
     int destination;
     int channel;
     ssize_t _dataReceived;
-    bool _operator = false;
     int _clientSocket;
     sockaddr_in _clientAddr;
     // Server *_clientServer;

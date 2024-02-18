@@ -15,7 +15,11 @@ class Channel {
     void    sendChanMsg(int sock, std::string msg);
     void    addSocket(int socket);
     std::string getPassword() const;
+    void    setOperator(int nb);
+
     private:
+    int _operator;
+    int _nbUser = 0;
     std::string _name;
     std::string _password;
     std::vector<int> _sockets;

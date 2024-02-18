@@ -17,6 +17,11 @@ void    Channel::addSocket(int socket)
     this->_sockets.push_back(socket);
 }
 
+void    Channel::setOperator(int nb)
+{
+    this->_operator = nb;
+}
+
 void    Channel::sendChanMsg(int sock, std::string msg)
 {
     // std::string msg = RPL_PRIVMSG_CHANNEL(nickname, this->_name, toSend);

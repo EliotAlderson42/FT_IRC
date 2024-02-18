@@ -42,7 +42,17 @@ void Client::setClientAddr(sockaddr_in addr)
     this->_clientAddr = addr;
 }
 
-Client::Client(const Client& client) : _username(client._username), _nickname(client._nickname), _password(client._password), _operator(client._operator) {
+int Client::getIsOperator() const
+{
+    return (this->_isOperator);
+}
+
+void Client::setIsOperator(int nb)
+{
+    this->_isOperator = nb;
+}
+
+Client::Client(const Client& client) : _username(client._username), _nickname(client._nickname), _password(client._password) {
     std::cout << "Client created by copy" << std::endl;
 }
 
@@ -50,7 +60,7 @@ Client const &Client::operator=(const Client& client) {
     this->_username = client._username;
     this->_nickname = client._nickname;
     this->_password = client._password;
-    this->_operator = client._operator;
+    // this->_operator = client._operator;
     return *this;
 }
 
