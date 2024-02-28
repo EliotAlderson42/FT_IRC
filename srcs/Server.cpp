@@ -222,7 +222,7 @@ void Server::mode(std::string str, int socket)
             send(socket, msg.c_str(), msg.size(), 0);
             return ;
         }
-        if ((_modes.find(std::string(1, mode[1])) != _modes.end()) && (mode.size() == 2 || mode[1] == 'l'))
+        if ((_modes.find(std::string(1, mode[1])) != _modes.end()) && (mode.size() == 2 || (mode[0] == '-' && mode[1] == 'l')))
         {
             mode[0] == '+' ? (this->*_modes[std::string(1, mode[1])])(1, channel, nickname, socket)
                            : (this->*_modes[std::string(1, mode[1])])(0, channel, nickname, socket);
