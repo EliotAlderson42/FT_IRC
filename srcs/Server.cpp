@@ -4,8 +4,6 @@ Server::Server() : _name("localhost"), _password("default"), _port("6667"), _ser
     setServerSocket();
     setServerAddr();
     bindServer();
-
-    std::cout << "Server created with default values" << std::endl;
 }
 
 Server::Server(std::string name, std::string password, std::string port) : _name(name), _password(password), _port(port), _serverSocket(0) {
@@ -32,7 +30,6 @@ Server::Server(std::string name, std::string password, std::string port) : _name
     _modes["t"] = &Server::tMode;
     _modes["k"] = &Server::kMode;
     _modes["l"] = &Server::lMode;
-    std::cout << "Server created with custom values" << std::endl;
 }
 
 Server::~Server() {
@@ -184,19 +181,13 @@ void Server::kMode(bool mode, std::string channel, std::string password, int soc
 
 void Server::lMode(bool mode, std::string channel, std::string limit, int socket)
 {
-    int lim;
-    if (mode){
-    try {
-        lim = std::stoi(limit);
-    } catch (const std::invalid_argument& ia) {
+    int lim = atoi(limit.c_str());
+    if (mode && !lim)
+    {
         std::string msg = ERR_NEEDMOREPARAMS(_clients[socket]->getNickname(), "MODE");
         send(socket, msg.c_str(), msg.size(), 0);
         return ;
-    } catch (const std::out_of_range& oor) {
-        std::string msg = "Out of limit range\n";
-        send(socket, msg.c_str(), msg.size(), 0);
-        return ;
-    }}
+    }
     std::string msg = mode ? SET_channel_MODE(_clients[socket]->getNickname(), _clients[socket]->getUsername(), "MODE", channel.substr(1), "l")
                            : UNSET_channel_MODE(_clients[socket]->getNickname(), _clients[socket]->getUsername(), "MODE", channel.substr(1), "l");
                       mode ? _channels[channel]->setLimit(lim)
@@ -264,9 +255,11 @@ void Server::kick(std::string str, int socket)
                     word = word.substr(1);   
                     std::string msg = word.empty()  ? KICK_CLIENT(_clients[socket]->getNickname(), _clients[socket]->getUsername(), "Kicked by operator", channel, target)
                                                     : KICK_CLIENT(_clients[socket]->getNickname(), _clients[socket]->getUsername(), word, channel, target);
-                    _channels[channel]->diffuseMessage(msg);
+                    _clients[targetSocket]->removeChannel(_channels[channel]);
                     _channels[channel]->removeOperator(targetSocket);
-                    _channels[channel]->removeSocket(targetSocket);                    
+                    _channels[channel]->removeSocket(targetSocket);     
+                    _channels[channel]->diffuseMessage(msg);
+
                 }
                 else
                 {
@@ -314,7 +307,10 @@ void Server::list(std::string str, int socket)
             *it = '#' + *it;
             if (_channels.find(*it) != _channels.end())
             {
-                std::string msg = RPL_LIST(_clients[socket]->getNickname(), (*it).substr(1), std::to_string(_channels[*it]->getSockets().size()), _channels[*it]->getTopic());
+                std::ostringstream oss;
+                oss << _channels[*it]->getSockets().size();
+                std::string socketsSizeStr = oss.str();
+                std::string msg = RPL_LIST(_clients[socket]->getNickname(), (*it).substr(1), socketsSizeStr, _channels[*it]->getTopic());
                 send(socket, msg.c_str(), msg.size(), 0);
             }
         }
@@ -323,7 +319,10 @@ void Server::list(std::string str, int socket)
     {
         for (std::map<std::string, Channel *>::iterator it = _channels.begin(); it != _channels.end(); it++)
         {
-            std::string msg = RPL_LIST(_clients[socket]->getNickname(), it->first.substr(1), std::to_string(it->second->getSockets().size()), it->second->getTopic());
+            std::ostringstream oss;
+            oss << it->second->getSockets().size();
+            std::string socketsSizeStr = oss.str();
+            std::string msg = RPL_LIST(_clients[socket]->getNickname(), it->first.substr(1), socketsSizeStr, it->second->getTopic());
             send(socket, msg.c_str(), msg.size(), 0);
         }
     }
@@ -444,6 +443,8 @@ void Server::join(std::string str, int socket)
                 send(socket, msg.c_str(), msg.size(), 0);
                 return ;
             }
+            if (_channels[channel]->isInvited(socket))
+                _channels[channel]->removeInvited(socket);
            _channels[channel]->addSocket(socket);
            _clients[socket]->addChannel(_channels[channel]);
            std::string msg = RPL_JOIN(_clients[socket]->getNickname(), channel.substr(1));
@@ -455,9 +456,12 @@ void Server::join(std::string str, int socket)
            }
            else
            {
+                std::ostringstream oss;
+                oss << std::time(0);
+                std::string time = oss.str();
                 std::string msg2 = RPL_TOPIC(_clients[socket]->getNickname(), channel.substr(1), _channels[channel]->getTopic());\
                 send(socket, msg2.c_str(), msg2.size(), 0);
-                std::string msg3 = RPL_TOPICWHOTIME(_clients[socket]->getNickname(), channel.substr(1), _channels[channel]->getTopicSetter(), std::to_string(std::time(0)));
+                std::string msg3 = RPL_TOPICWHOTIME(_clients[socket]->getNickname(), channel.substr(1), _channels[channel]->getTopicSetter(), time);
                 send(socket, msg3.c_str(), msg3.size(), 0);
            }
         }
@@ -490,7 +494,6 @@ void Server::privmsg(std::string str, int socket)
 	iss >> word;
 	iss >> word;
 
-	std::cout << "channel = " << word << std::endl;
 	std::string toSend;
     size_t pos = str.find(':');
     if (pos != std::string::npos)
@@ -510,7 +513,6 @@ void Server::privmsg(std::string str, int socket)
             return ;
         }
     	std::string msg = RPL_PRIVMSG_CHANNEL((CYAN + _clients[socket]->getNickname() + RESET), word, toSend);
-        std::cout << _clients[socket]->getNickname() << std::endl;
 		_channels[word]->sendChanMsg(socket, msg);
         return ;
 	}
@@ -531,13 +533,17 @@ void Server::privmsg(std::string str, int socket)
     send(socket, msg.c_str(), msg.size(), 0);
 }
 
+int Server::getServerSocket() {return this->_serverSocket;}
+
 void Server::topic(std::string str, int socket)
 {
     std::istringstream iss(str);
+    std::ostringstream oss;
+    oss << std::time(0);
     std::string word;
     iss >> word;
     iss >> word;
-    std::string currentTime = std::to_string(std::time(0));
+    std::string currentTime = oss.str();
 
     if (_channels.find(word) != _channels.end())
     {
@@ -592,7 +598,6 @@ void    Server::whois(std::string str, int socket)
     std::string word;
     iss >> word;
     iss >> word;
-    std::cout << "word = " << word << std::endl;
     if (word == _clients[socket]->getNickname())
     {
         std::string msg = RPL_WHOISUSER(_clients[socket]->getNickname(), this->getName(), _clients[socket]->getUsername());
@@ -610,7 +615,6 @@ void    Server::whois(std::string str, int socket)
 void Server::nick(std::string str, int socket)
 {
     std::string sub = str.substr(5, 6);
-    std::cout << "SUB = "<< sub << std::endl;
     if (sub.empty())
     {
         std::string msg = ERR_NONICKNAMEGIVEN(_clients[socket]->getNickname());
@@ -662,12 +666,7 @@ void Server::user(std::string str, int socket)
     std::string word;
     iss >> word;
     iss >> word;
-    if (_clients[socket]->getExpectingUsername() == 0)
-    {
-        std::string msg = ERR_ALREADYREGISTRED(_clients[socket]->getNickname());
-        send(socket, msg.c_str(), msg.size(), 0);
-    }
-    else if (word.empty())
+    if (word.empty())
     {
         std::string msg = ERR_NEEDMOREPARAMS(_clients[socket]->getNickname(), "USER");
         send(socket, msg.c_str(), msg.size(), 0);
@@ -684,7 +683,7 @@ void Server::quit(std::string str, int socket)
 {
     std::string word = str.substr(6);
     _clients[socket]->diffuseMessage("Quit: " + word);
-    _clients[socket]->removeChannels();
+    _clients[socket]->removeAllChannels();
     close(socket);
     delete _clients[socket];
     _clients.erase(socket);
@@ -694,22 +693,15 @@ void Server::capls(std::string str, int socket)
 {
    std::vector<std::string> commands = splitCommands(str, '\n');
    std::vector<std::string>::iterator it = commands.begin();
-   int pass = 0;
-   
-   if (it != commands.end()) // Check to avoid incrementing an end iterator
+
+   if (it != commands.end())
        ++it;
 
    for(; it != commands.end(); it++)
    {
         std::string word = *it;
-        std::cout << "word = " << word << std::endl; 
-        if (word.substr(0, 4) == "PASS")
-            pass = 1;
-       if (word.substr(0, 4) == "MODE" || word.substr(0, 5) == "WHOIS")
-            continue ;
-       (this->*_funcTab[word.substr(0,4)])(word,socket);
+        (this->*_funcTab[word.substr(0,4)])(word,socket);
    }
-    std::cout << "isConnect = " << _clients[socket]->getIsConnect() << std::endl;
    if (_clients[socket]->getIsConnect() == 0)
     {
         std::string msg = ERR_PASSWDMISMATCH(_clients[socket]->getNickname());
@@ -725,7 +717,6 @@ void Server::mainLoop()
     while (running == 1)
     {
         this->_numEvents = epoll_wait(this->_epollFd, this->_events.data(), 10, -1);
-        std::cout << "numevents = " << this->_numEvents << std::endl;
         if (this->_numEvents == -1)
         {
             if (errno == EINTR)
@@ -742,8 +733,7 @@ void Server::mainLoop()
             else
             {
                     char buffer[1024] = {0};
-                    ssize_t bytesRead;
-                    bytesRead = recv(_events[i].data.fd, buffer, sizeof(buffer), 0);
+                    recv(_events[i].data.fd, buffer, sizeof(buffer), 0);
                     std::cout << "\033[35m"<< "Receive : |" << buffer << "|\033[0m" << std::endl;
                     std::string neww(buffer);
                     if (this->_funcTab.find(firstWord(neww)) != this->_funcTab.end())
@@ -756,5 +746,3 @@ void Server::mainLoop()
         }
     }
 }
-
-int const Server::getServerSocket() {return this->_serverSocket;}

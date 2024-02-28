@@ -21,7 +21,6 @@ std::vector<std::string> splitCommands(const std::string& str, char delimiter) {
     while (std::getline(ss, command, delimiter)) {
         commands.push_back(command);
     }
-
     return commands;
 }
 
@@ -34,12 +33,3 @@ bool onlyWhitespace(const std::string &str) {
     }
     return true;
 }
-
-// void signalHandler(int signum, siginfo_t *info, void *ptr)
-// {
-//     if (signum == SIGINT)
-//     {
-//         std::cout << "\nServer stoppage..." << std::endl;
-//         running = 0;
-//     }
-// }

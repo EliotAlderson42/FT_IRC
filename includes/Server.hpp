@@ -32,7 +32,11 @@ class Server {
     void    invite(std::string str, int socket);
     void    list(std::string str, int socket);
     void    mode(std::string str, int socket);
+
+
+    
     //Mode functions
+
     void    oMode(bool mode, std::string channel, std::string nickname, int socket);
     void    iMode(bool mode, std::string channel, std::string nickname, int socket);
     void    tMode(bool mode, std::string channel, std::string nickname, int socket);
@@ -41,7 +45,7 @@ class Server {
     //Getters  
     std::string getName();
     std::string getPassword();
-    int const getServerSocket();
+    int getServerSocket();
     int getPassLength();
     int getNickLength();
     int getClientSocket(std::string nickname);

@@ -4,20 +4,17 @@ int running = 1;
 
 void signalHandler(int signum, siginfo_t *info, void *ptr)
 {
+    (void)info;
+    (void)ptr;
     if (signum == SIGINT)
     {
- 
         std::cout << "\nServer stoppage..." << std::endl;
         running = 0;
     }
 }
 
-int setNonBlocking(int sockfd) {
-    // int flags = fcntl(sockfd, F_GETFL, 0);
-    // if (flags == -1) {
-    //     return -1;
-    // }
-    // flags |= O_NONBLOCK;
+int setNonBlocking(int sockfd) 
+{
     if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) {
         return -1;
     }

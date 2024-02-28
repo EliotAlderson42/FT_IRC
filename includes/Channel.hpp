@@ -3,45 +3,53 @@
 
 class Channel {
     public:
-    Channel();
+
+    //Constructors and destructors
     Channel(std::string name);
+    Channel();
     ~Channel();
-    void    sendChanMsg(int sock, std::string msg);
-    void    diffuseMessage(std::string msg);
-    void    addSocket(int socket);
-    std::string getPassword() const;
-    void    setOperator(int socket);
-    void    removeOperator(int socket);
-    std::string   getName() const;
-    std::string getTopic() const;
-    void    setTopic(std::string topic);
-    void    setTopicSetter(Client *client);
+
+    //Getters
+    std::vector<int>    getSockets()            const;
+    std::string         getTopic()              const;
+    std::string         getTopicSetter()        const;
+    std::string         getName()               const;
+    std::string         getPassword()           const;
+    size_t              getLimit()              const;
+    bool                getRestrictedTopic()    const;
+    bool                getInviteOnly()         const;
+
+    //Setters
     void    setPassword(std::string password);
-    std::string getTopicSetter() const;
-    std::vector<int> getSockets() const;
-    bool   isOperator(int socket) const;
-    void   removeSocket(int socket);
+    void    setRestrictedTopic(bool value);
+    void    setTopicSetter(Client *client);
+    void    setTopic(std::string topic);
+    void    setInviteOnly(bool value);
+    void    setOperator(int socket);
+    void    setInvited(int socket);
+    void    setLimit(int limit);
+
+    //Methods
+    void   sendChanMsg(int sock, std::string msg);
+    void   diffuseMessage(std::string msg);
     bool   isInChannel(int socket) const;
-    void   setInvited(int socket);
-    void   removeInvited(int socket);
+    bool   isOperator(int socket) const;
     bool   isInvited(int socket) const;
-    void   setInviteOnly(bool value);
-    void   setRestrictedTopic(bool value);
-    bool   getRestrictedTopic() const;
-    bool   getInviteOnly() const;
-    void   setLimit(int limit);
-    int    getLimit() const;
+    void   removeOperator(int socket);
+    void   removeInvited(int socket);
+    void   removeSocket(int socket);
+    void   addSocket(int socket);
+
 
     private:
-    std::vector<int> _invited;
-    std::vector<int> _operators;
-    int _nbUser = 0;
-    std::string _name;
-    std::string _password;
-    std::vector<int> _sockets;
-    std::string _topic;
-    std::string _topicSetter;
-    bool _inviteOnly;
-    bool _restrictedTopic;
-    int _limit = 0;
+    std::vector<int>    _operators;
+    std::vector<int>    _invited;
+    std::vector<int>    _sockets;
+    std::string         _topicSetter;
+    std::string         _password;
+    std::string         _topic;
+    std::string         _name;
+    size_t              _limit;
+    bool                _inviteOnly;
+    bool                _restrictedTopic;
 };

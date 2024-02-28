@@ -4,49 +4,40 @@
 class Server;
 class Channel;
 class Client {
+
     public:
-    Client();
+    
+    //Constructors and destructors
     Client(int _clientSocket, sockaddr_in _clientAddr);
-    Client(const Client& client);
     Client const &operator=(const Client& client);
+    Client(const Client& client);
     ~Client();
+    Client();
 
-    sockaddr_in  getClientAddr() const;
-    void setClientAddr(sockaddr_in addr);
-    void setClientSocket(int socket);
-    int getSocket() const;
-    std::string getNickname() const;
+    //Getters
+    sockaddr_in getClientAddr() const;
+    std::string getUsername()   const;
+    std::string getNickname()   const; 
+    int         getIsConnect()  const;
+    int         getSocket()     const;
+
+    //Setters
     void setNickname(std::string nickname);
-    void isExpectingNickname(bool value);
-    bool getExpectingNickname() const;
-    std::string getUsername() const;
-    void isExpectingPassword(bool value);
-    bool getExpectingPassword() const;
     void setUsername(std::string username);
-    void isExpectingUsername(bool value);
-    int getExpectingUsername() const;
     void setIsConnect(int nb);
-    int getIsConnect();
-    int getNickLength();
-    void addChannel(Channel *channel);
-    void removeChannels();
-    void diffuseMessage(std::string message);
-
-
+    
+    //Methods  
+    void diffuseMessage(std::string message);   
+    void addChannel(Channel *channel); 
+    void removeAllChannels();
+    void removeChannel(Channel *channel);
+    
     private:
-    std::string _username;
-    std::string _nickname;
-    std::string _password;
-    ssize_t _dataSent;
-    int _isConnect = 0;
-    int destination;
-    int channel;
-    ssize_t _dataReceived;
-    int _clientSocket;
-    sockaddr_in _clientAddr;
-    // Server *_clientServer;
-    bool _expectingNickname = false;
-    int _expectingUsername = 1;
-    bool _expectingPassword = false;
+    sockaddr_in             _clientAddr;
     std::vector <Channel *> _channels;
+    std::string             _username;
+    std::string             _nickname;
+    std::string             _password;
+    int                     _isConnect;
+    int                     _clientSocket;
 };

@@ -3,27 +3,12 @@ SRC_FILES = $(addprefix srcs/, main.cpp Server.cpp Client.cpp Channel.cpp utils.
 OBJS		= $(SRC_FILES:%.cpp=$(OBJS_DIR)/%.o)
 C = c++
 
-# all: $(NAME)
-
-# $(NAME): $(OBJ)
-# 	$(C) $(CFLAGS) -o $(NAME) $(OBJ)
-
-# clean:
-# 	rm -f $(OBJ)
-
-# fclean: clean
-# 	rm -f $(NAME)
-
-# re: fclean all
-
-# .PHONY: all clean fclean re
-
 OBJS_DIR	= .objets
 
 
 CC			= c++
 
-CFLAGS		= -g3   -Iincludes #-std=c++98 -Wall -Wextra -Werror -Iincludes
+CFLAGS		= -g3 -Iincludes -std=c++98 -Wall -Wextra -Werror
 
 all : $(NAME)
 
