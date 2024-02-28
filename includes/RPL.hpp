@@ -27,7 +27,8 @@
 # define ERR_CHANOPRIVSNEED(nickname, channel) (":localhost 482 " + nickname + " #" + channel + " :You're not channel operator\r\n") //
 // 501
 # define ERR_UMODEUNKNOWNFLAG(nickname) (":localhost 501 " + nickname + " :Unknown MODE flag\r\n") //
-
+// 472
+# define ERR_UNKNOWNMODE(nickname, mode) (":localhost 472 " + nickname + " " + mode + " :is unknown mode char to me for " + nickname + "\r\n") //
             /* = = =    PASS    = = = */
 // 464
 # define ERR_PASSWDMISMATCH(nickname) (":localhost 464 " + nickname + " :Password incorrect.\r\n")//
@@ -92,7 +93,7 @@
 
 # define INVITE_CLIENT(nickname, username, cmd, concerned_client_nickname, channel) (user_id(nickname, username, cmd) + concerned_client_nickname + " :" + channel + "\r\n") //
 
-# define NOCTICE_CLIENT_INVITE(nickname, channel) (nickname + " invites you to " + channel + "\r\n") //
+# define NOTICE_CLIENT_INVITE(nickname, channel) (nickname + " invites you to " + channel + "\r\n") //
 // 473
 # define ERR_INVITEONLYCHAN(nickname, channel) (":localhost 473 " +  nickname + " " + channel + " :Cannot join channel (+i)\r\n") //
 
@@ -104,8 +105,18 @@
 #define RPL_NOTOPIC(nickname, channel) (":localhost 331 " + nickname + " #" + channel + " :No topic is set\r\n") //
 // 332
 #define RPL_TOPIC(nickname, channel, topic) (":localhost 332 " + nickname + " #" + channel + " : " + topic + "\r\n") //
+// 333
+#define RPL_TOPICWHOTIME(nickname, channel, nickname_who, time) (":localhost 333 " + nickname + " #" + channel + " " + nickname_who + " " + time + "\r\n") //
+            /* = = =    LIST     = = = */
 
+// 321
+#define RPL_LISTSTART(nickname) (":localhost 321 " + nickname + " :Channel :Users Name\r\n") //
+// 322
+#define RPL_LIST(nickname, channel, nb_users, topic) (":localhost 322 " + nickname + " #" + channel + " " + nb_users + " :" + topic + "\r\n") //
+// 323
+#define RPL_LISTEND(nickname) (":localhost 323 " + nickname + " :End of /LIST\r\n") //
 
+            /* = = =    QUIT     = = = */
 // #define CLIENT_ID(nickname, username, command) (":" + nickname + "!~" + username + "@" + channel + " " + command + " ")
 // #define  NICK_RPL(nickname, username, new_nickname) (CLIENT_ID(nickname, username, "NICK") + ":" + new_nickname + "\r\n")
 #endif

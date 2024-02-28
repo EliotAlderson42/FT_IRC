@@ -2,6 +2,7 @@
 #include "Lib.hpp"
 
 class Server;
+class Channel;
 class Client {
     public:
     Client();
@@ -27,16 +28,17 @@ class Client {
     void setIsConnect(int nb);
     int getIsConnect();
     int getNickLength();
-    int getIsOperator() const;
-    void setIsOperator(int nb);
-    
+    void addChannel(Channel *channel);
+    void removeChannels();
+    void diffuseMessage(std::string message);
+
+
     private:
     std::string _username;
     std::string _nickname;
     std::string _password;
     ssize_t _dataSent;
     int _isConnect = 0;
-    int _isOperator = 0;
     int destination;
     int channel;
     ssize_t _dataReceived;
@@ -46,4 +48,5 @@ class Client {
     bool _expectingNickname = false;
     int _expectingUsername = 1;
     bool _expectingPassword = false;
+    std::vector <Channel *> _channels;
 };

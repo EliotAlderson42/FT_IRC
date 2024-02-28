@@ -1,10 +1,12 @@
 #include "Lib.hpp"
-
+class Server;
 int running = 1;
+
 void signalHandler(int signum, siginfo_t *info, void *ptr)
 {
     if (signum == SIGINT)
     {
+ 
         std::cout << "\nServer stoppage..." << std::endl;
         running = 0;
     }

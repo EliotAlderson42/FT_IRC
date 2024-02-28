@@ -14,6 +14,7 @@
 #include <map>
 #include <algorithm>
 #include <cerrno>
+#include <ctime>
 #include "Client.hpp"
 #include "Server.hpp"
 #include "Channel.hpp"
@@ -34,23 +35,24 @@ extern int running;
 std::string toString(int value);
 void NICK(std::string receivedData, int i, Client *client);
 std::string firstWord(std::string &phrase);
-std::vector<std::string> splitCommands(const std::string& str);
+std::vector<std::string> splitCommands(const std::string& str, char delimiter);
+bool onlyWhitespace(const std::string &str);
 
                                     //             TO_DO LIST:
 
-                                    // 1 : Commande KICK;
+                                    // 1 : Commande KICK; Fait.
 
-                                    // 2 : Commande INVITE;
+                                    // 2 : Commande INVITE; Fait.
 
-                                    // 3 : Commande TOPIC;
+                                    // 3 : Commande TOPIC; Fait.
 
-                                    // 4 : Commande QUIT;
+                                    // 4 : Commande QUIT; Fait.
 
-                                    // 5 : Commande LIST;
+                                    // 5 : Commande LIST; Fait. (on devait pas le faire jcrois mdr)
 
                                     // 6 : Commande MODE : [flags]
-                                    //                     -/+ i;
-                                    //                     -/+ t;
-                                    //                     -/+ k;
-                                    //                     -/+ o;
+                                    //                     -/+ i; Fait.
+                                    //                     -/+ t; Fait.
+                                    //                     -/+ k; Fait.
+                                    //                     -/+ o; Fait.
                                     //                     -/+ l;

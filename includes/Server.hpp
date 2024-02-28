@@ -27,19 +27,32 @@ class Server {
     void    nick(std::string str, int socket);
     void    user(std::string str, int socket);
     void    quit(std::string str, int socket);
-    
-    //Getters
+    void    topic(std::string str, int socket);
+    void    kick(std::string str, int socket);
+    void    invite(std::string str, int socket);
+    void    list(std::string str, int socket);
+    void    mode(std::string str, int socket);
+    //Mode functions
+    void    oMode(bool mode, std::string channel, std::string nickname, int socket);
+    void    iMode(bool mode, std::string channel, std::string nickname, int socket);
+    void    tMode(bool mode, std::string channel, std::string nickname, int socket);
+    void    kMode(bool mode, std::string channel, std::string password, int socket);
+    void    lMode(bool mode, std::string channel, std::string limit, int socket);
+    //Getters  
     std::string getName();
     std::string getPassword();
     int const getServerSocket();
     int getPassLength();
     int getNickLength();
-
+    int getClientSocket(std::string nickname);
     //utils
     int    initServ();
     void    mainLoop();
     int    addClient();
     void    removeClient(int socket);
+    std::map<int, Client *> getClients();
+    std::map<std::string, Channel *> getChannels();
+    Channel *getChannel(std::string name);
 
     private:
     std::string _name;
@@ -54,4 +67,5 @@ class Server {
     std::map<int, Client *> _clients;
     std::map<std::string, Channel *> _channels;
     std::vector<struct epoll_event> _events;// je cree la structure de gestion des events
+    std::map<std::string, void(Server::*)(bool, std::string, std::string, int)> _modes;
 };
