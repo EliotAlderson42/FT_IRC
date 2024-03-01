@@ -33,7 +33,6 @@ const int BUFFER_SIZE = 1024;
 extern int running;
 
 std::string toString(int value);
-void NICK(std::string receivedData, int i, Client *client);
 std::string firstWord(std::string &phrase);
 std::vector<std::string> splitCommands(const std::string& str, char delimiter);
 bool onlyWhitespace(const std::string &str);

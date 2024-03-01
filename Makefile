@@ -1,5 +1,6 @@
 NAME = irc
-SRC_FILES = $(addprefix srcs/, main.cpp Server.cpp Client.cpp Channel.cpp utils.cpp KICK.cpp)
+SRC_FILES = $(wildcard srcs/*.cpp )\
+			$(wildcard srcs/commands/*.cpp)
 OBJS		= $(SRC_FILES:%.cpp=$(OBJS_DIR)/%.o)
 C = c++
 
@@ -18,6 +19,7 @@ $(NAME) : $(OBJS_DIR) $(OBJS)
 $(OBJS_DIR) :
 	@mkdir $(OBJS_DIR)
 	@mkdir $(OBJS_DIR)/srcs
+	@mkdir $(OBJS_DIR)/srcs/commands
 
 $(OBJS) : $(OBJS_DIR)/%.o : %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
