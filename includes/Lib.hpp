@@ -38,6 +38,7 @@ std::string firstWord(std::string &phrase);
 std::vector<std::string> splitCommands(const std::string& str, char delimiter);
 bool onlyWhitespace(const std::string &str);
 
+
                                     //             TO_DO LIST:
 
                                     // 1 : Commande KICK; Fait.

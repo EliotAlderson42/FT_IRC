@@ -201,10 +201,12 @@ void Server::mode(std::string str, int socket)
     str.erase(str.find_last_not_of('\n'));
     std::vector<std::string> commands = splitCommands(str, ' ');
     if(!(commands.size() <= 3 && commands.size() >= 2))
-        return ;
+       return ;
     std::string channel = commands[0];
     std::string mode = commands[1];
-    std::string nickname = commands[2];
+    std::string nickname;
+    if (commands.size() == 3)
+        nickname = commands[2];
     if (_channels.find(channel) != _channels.end())
     {
         if (!_channels[channel]->isOperator(socket))
@@ -213,7 +215,7 @@ void Server::mode(std::string str, int socket)
             send(socket, msg.c_str(), msg.size(), 0);
             return ;
         }
-        if ((_modes.find(std::string(1, mode[1])) != _modes.end()) && (mode.size() == 2 || (mode[0] == '-' && mode[1] == 'l')))
+        if ((_modes.find(std::string(1, mode[1])) != _modes.end()) && mode.size() == 2)
         {
             mode[0] == '+' ? (this->*_modes[std::string(1, mode[1])])(1, channel, nickname, socket)
                            : (this->*_modes[std::string(1, mode[1])])(0, channel, nickname, socket);
@@ -228,58 +230,6 @@ void Server::mode(std::string str, int socket)
     {
         std::string msg = ERR_NOSUCHCHANNEL(_clients[socket]->getNickname(), channel);
         send(socket, msg.c_str(), msg.size(), 0);
-    }
-}
-
-void Server::kick(std::string str, int socket)
-{
-    std::vector <std::string> commands = splitCommands(str, '\n');
-    std::vector <std::string>::iterator it = commands.begin();
-    for (; it != commands.end(); it++)
-    {
-        std::string word = *it;
-        std::istringstream iss(word);
-        iss >> word;
-        iss >> word;
-        if (_channels.find(word) != _channels.end())
-        {
-            if(_channels[word]->isOperator(socket))
-            {
-                std::string channel = word;
-                iss >> word;
-                std::string target = word;
-                int targetSocket = getClientSocket(target);
-                if (_channels[channel]->isInChannel(targetSocket))
-                {
-                    iss >> word;
-                    word = word.substr(1);   
-                    std::string msg = word.empty()  ? KICK_CLIENT(_clients[socket]->getNickname(), _clients[socket]->getUsername(), "Kicked by operator", channel, target)
-                                                    : KICK_CLIENT(_clients[socket]->getNickname(), _clients[socket]->getUsername(), word, channel, target);
-                    _clients[targetSocket]->removeChannel(_channels[channel]);
-                    _channels[channel]->removeOperator(targetSocket);
-                    _channels[channel]->removeSocket(targetSocket);     
-                    _channels[channel]->diffuseMessage(msg);
-
-                }
-                else
-                {
-                    std::string msg = ERR_NOTONCHANNEL(_clients[targetSocket]->getNickname(), word);
-                    send(socket, msg.c_str(), msg.size(), 0);
-                }
-            }
-            else
-            {
-                std::string msg = _channels[word]->isInChannel(socket) 
-                                  ? ERR_CHANOPRIVSNEED(_clients[socket]->getNickname(), word.substr(1))
-                                  : ERR_NOTONCHANNEL(_clients[socket]->getNickname(), word);
-                send(socket, msg.c_str(), msg.size(), 0);
-            }
-        }
-        else
-        {
-            std::string msg = ERR_NOSUCHCHANNEL(_clients[socket]->getNickname(), word);
-            send(socket, msg.c_str(), msg.size(), 0);
-        }
     }
 }
 
@@ -420,7 +370,9 @@ void Server::join(std::string str, int socket)
     str.erase(str.find_last_not_of('\n'));
     std::vector<std::string> commands = splitCommands(str, ' ');
     std::string channel = commands[0];
-    std::string password = commands[1];
+    std::string password;
+    if (commands.size() == 2)
+        password = commands[1];
     if (channel[0] == '#')
     {
 		if (_channels.find(channel) != _channels.end())
