@@ -81,6 +81,12 @@ void Server::setServerAddr() {
 }
 
 void Server::bindServer() {
+    int enable = 1;
+    if (setsockopt(this->_serverSocket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
+        std::cerr << "setsockopt(SO_REUSEADDR) failed" << std::endl;
+        close(this->_serverSocket);
+        exit(1);
+    }
     if (bind(this->_serverSocket, reinterpret_cast<sockaddr*>(&this->_serverAddr), sizeof(this->_serverAddr)) == -1) {
         std::cerr << "Failed to bind socket" << std::endl;
         close(this->_serverSocket);
