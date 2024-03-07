@@ -2,7 +2,9 @@
 
 void Server::nick(std::string str, int socket)
 {
-    std::string sub = str.substr(5, 6);
+    std::string sub = str.substr(5);
+    std::istringstream iss(sub);
+    iss >> sub;
     if (sub.empty())
     {
         std::string msg = ERR_NONICKNAMEGIVEN(_clients[socket]->getNickname());

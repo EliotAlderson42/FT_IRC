@@ -11,7 +11,10 @@ void Server::capls(std::string str, int socket)
    for(; it != commands.end(); it++)
    {
         std::string word = *it;
-        (this->*_funcTab[word.substr(0,4)])(word,socket);
+        if (word.substr(0,5) == "WHOIS")
+            (this->*_funcTab[word.substr(0,5)])(word,socket);
+        else
+            (this->*_funcTab[word.substr(0,4)])(word,socket);
    }
    if (_clients[socket]->getIsConnect() == 0)
     {

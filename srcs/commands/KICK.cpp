@@ -18,6 +18,7 @@ void Server::kick(std::string str, int socket)
                 iss >> word;
                 std::string target = word;
                 int targetSocket = getClientSocket(target);
+                std::cout << "le target socket = " << targetSocket << std::endl;
                 if (_channels[channel]->isInChannel(targetSocket))
                 {
                     iss >> word;
@@ -32,7 +33,12 @@ void Server::kick(std::string str, int socket)
                 }
                 else
                 {
-                    std::string msg = ERR_NOTONCHANNEL(_clients[targetSocket]->getNickname(), word);
+                    std::string msg;
+                    std::string user = "user";
+                    if (targetSocket == 0)
+                        msg = ERR_NOTONCHANNEL(user, word);
+                    else 
+                        msg = ERR_NOTONCHANNEL(_clients[targetSocket]->getNickname(), word);
                     send(socket, msg.c_str(), msg.size(), 0);
                 }
             }
