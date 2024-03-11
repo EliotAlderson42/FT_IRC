@@ -118,5 +118,5 @@
 
             /* = = =    QUIT     = = = */
 // #define CLIENT_ID(nickname, username, command) (":" + nickname + "!~" + username + "@" + channel + " " + command + " ")
-// #define  NICK_RPL(nickname, username, new_nickname) (CLIENT_ID(nickname, username, "NICK") + ":" + new_nickname + "\r\n")
+ #define  NICK_RPL(nickname, username, new_nickname) (CLIENT_ID(nickname, username, "NICK") + ":" + new_nickname + "\r\n")
 #endif

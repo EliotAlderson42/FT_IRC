@@ -26,8 +26,8 @@ void Server::nick(std::string str, int socket)
                 return ;
             }
         }
+        std::string msg = NICK_RPL(_clients[socket]->getNickname(), _clients[socket]->getUsername(), sub);
         _clients[socket]->setNickname(sub);
-        std::string msg = ":localhost 001 " + sub + " :Nickname changed to " + sub + "\n";
         send(socket, msg.c_str(), msg.size(), 0);
     }
 }

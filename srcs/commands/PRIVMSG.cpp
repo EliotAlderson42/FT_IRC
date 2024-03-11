@@ -35,7 +35,7 @@ void Server::privmsg(std::string str, int socket)
         {
             if (it->second->getNickname() == word)
             {
-    	        std::string msg = RPL_PRIVMSG_CHANNEL((RED +_clients[socket]->getNickname() + RESET), ("#" + word), toSend);
+    	        std::string msg = RPL_PRIVMSG_CLIENT(_clients[socket]->getNickname(), _clients[socket]->getUsername(), word, toSend);
                 std::cout << msg << std::endl;
                 send(it->second->getSocket(), msg.c_str(), msg.size(), 0);
                 return ;
