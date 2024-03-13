@@ -1,4 +1,4 @@
-NAME = irc
+NAME = ircserv
 SRC_FILES = $(wildcard srcs/*.cpp )\
 			$(wildcard srcs/commands/*.cpp)
 OBJS		= $(SRC_FILES:%.cpp=$(OBJS_DIR)/%.o)

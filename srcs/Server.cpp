@@ -205,11 +205,13 @@ void Server::mainLoop()
             {
                     char buffer[1024] = {0};
                     recv(_events[i].data.fd, buffer, sizeof(buffer), 0);
-                    std::cout << "\033[35m"<< "Receive : " << buffer << "|\033[0m" << std::endl;
+                    std::cout << "\033[35m"<< "Receive : " << buffer << "\033[0m" << std::endl;
                     std::string neww(buffer);
+                    if (neww.find('\x04') != std::string::npos)
+                        continue ;
                     if (this->_funcTab.find(firstWord(neww)) != this->_funcTab.end())
                     {
-                        std::string neww(buffer);
+                        // std::string neww(buffer);
                         (this->*_funcTab[firstWord(neww)])(neww, _events[i].data.fd);
                     }
                     memset(buffer, 0, sizeof(buffer));

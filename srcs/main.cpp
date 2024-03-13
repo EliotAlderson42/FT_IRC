@@ -13,6 +13,8 @@ void signalHandler(int signum, siginfo_t *info, void *ptr)
     }
 }
 
+// void signaldHandler()
+
 int setNonBlocking(int sockfd) 
 {
     if (fcntl(sockfd, F_SETFL, O_NONBLOCK) == -1) {

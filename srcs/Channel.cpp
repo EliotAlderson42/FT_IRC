@@ -122,6 +122,7 @@ void   Channel::setTopicSetter(Client *client)
 void    Channel::addSocket(int socket)
 {
     this->_sockets.push_back(socket);
+    std::cout << "probleeeeem\n";
 }
 
 void    Channel::diffuseMessage(std::string msg)

@@ -17,9 +17,12 @@ std::vector<std::string> splitCommands(const std::string& str, char delimiter) {
     std::vector<std::string> commands;
     std::istringstream ss(str);
     std::string command;
-
+    std::cout << "str = "<< str<<std::endl;
+    (void)delimiter;
     while (std::getline(ss, command, delimiter)) {
+        std::cout << "command == " << command << std::endl;
         commands.push_back(command);
+        ss.clear();
     }
     return commands;
 }
