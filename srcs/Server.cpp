@@ -10,7 +10,6 @@ Server::Server(std::string name, std::string password, std::string port) : _name
     setServerSocket();
     setServerAddr();
     bindServer();
-    // _funcTab.resize(3);
     _funcTab["JOIN"] = &Server::join;
 	_funcTab["PRIVMSG"] = &Server::privmsg;
 	_funcTab["PING"] = &Server::pong;
@@ -45,20 +44,23 @@ Server::~Server() {
     }
     std::cout << "Server destroyed" << std::endl;
 }
+/// GETTERS :
 
 std::string Server::getName() {return this->_name;}
-std::string Server::getPassword() {return this->_password;}
-std::map<int, Client *> Server::getClients() {return this->_clients;}
-std::map<std::string, Channel *> Server::getChannels() {return this->_channels;}
 
-void Server::setServerSocket() 
+std::string Server::getPassword() {return this->_password;}
+
+int Server::getIsPasswd()
 {
-    this->_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (this->_serverSocket == -1) {
-        std::cerr << "Failed to create socket" << std::endl;
-        exit(1);
-    }
+    return (this->_isPasswd);
 }
+
+int    Server::getPassLength()
+{
+    return (this->_password.size());
+}
+
+int Server::getServerSocket() {return this->_serverSocket;}
 
 int Server::getClientSocket(std::string nickname)
 {
@@ -70,6 +72,17 @@ int Server::getClientSocket(std::string nickname)
     return 0;
 }
 
+////SETTERS :
+
+void Server::setServerSocket() 
+{
+    this->_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (this->_serverSocket == -1) {
+        std::cerr << "Failed to create socket" << std::endl;
+        exit(1);
+    }
+}
+
 void Server::setServerAddr() {
 
     int port;
@@ -78,6 +91,11 @@ void Server::setServerAddr() {
     this->_serverAddr.sin_family = AF_INET;
     this->_serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
     this->_serverAddr.sin_port = htons(port);   
+}
+
+void    Server::setIsPasswd(int nb)
+{
+    this->_isPasswd = nb;
 }
 
 void Server::bindServer() {
@@ -126,22 +144,8 @@ int Server::initServ()
     return (1);
 }
 
-Channel *Server::getChannel(std::string name)
-{
-    if (_channels.find(name) != _channels.end())
-        return _channels[name];
-    return NULL;
-}
 
-void    Server::setIsPasswd(int nb)
-{
-    this->_isPasswd = nb;
-}
 
-int Server::getIsPasswd()
-{
-    return (this->_isPasswd);
-}
 
 int Server::addClient()
 {
@@ -165,7 +169,8 @@ int Server::addClient()
     }
     if (fcntl(clientSocket, F_SETFL, O_NONBLOCK) == -1)
         std::cerr << "Error setting socket to non-blocking mode.\n";
-    this->_clients[clientSocket] = new Client(clientSocket, clientAddr, this->getIsPasswd());
+    int isPasswd = this->getIsPasswd();
+    this->_clients[clientSocket] = new Client(clientSocket, clientAddr, isPasswd);
     std::string msg = RPL_WELCOME(_clients[clientSocket]->getNickname());
     send(clientSocket, msg.c_str(), msg.size(), 0);
     return (1);
@@ -177,10 +182,6 @@ void Server::removeClient(int socket)
     _clients.erase(socket);
 }
 
-int    Server::getPassLength()
-{
-    return (this->_password.size());
-}
 
 void	Server::pong(std::string str, int socket)
 {
@@ -190,22 +191,18 @@ void	Server::pong(std::string str, int socket)
 	send(socket, msg.c_str(), msg.size(), 0);
 }
 
-
-int Server::getServerSocket() {return this->_serverSocket;}
-
-
 void Server::mainLoop()
 {
     while (running == 1)
     {
         this->_numEvents = epoll_wait(this->_epollFd, this->_events.data(), 10, -1);
-        if (this->_numEvents == -1)
-        {
-            if (errno == EINTR)
-                continue ;
-            std::cerr << "Error calling epoll_wait().\n";
-            break ;
-        }
+        // if (this->_numEvents == -1)
+        // {
+        //     if (errno == EINTR)
+        //         continue ;
+        //     std::cerr << "Error calling epoll_wait().\n";
+        //     break ;
+        // }
         if (static_cast<size_t>(_numEvents) > _events.size())
             _events.resize(_numEvents);
         for (int i = 0; i < _numEvents; i++)
@@ -216,21 +213,28 @@ void Server::mainLoop()
             {
                 char buffer[1024] = {0};
                 recv(_events[i].data.fd, buffer, sizeof(buffer), 0);
-                // std::cout << "\033[35m"<< "Receive : " << buffer << "\033[0m" << std::endl;
+                std::cout << "\033[35m"<< "Receive : " << buffer << "\033[0m" << std::endl;
                 std::string neww(buffer);
                 if (neww.find('\x04') != std::string::npos)
                     continue ;
                 if (this->_funcTab.find(firstWord(neww)) != this->_funcTab.end())
                 {
-                    (this->*_funcTab[firstWord(neww)])(neww, _events[i].data.fd);
-                    if (neww.substr(0,4) != "QUIT")
+                    if (neww.substr(0,4) != "QUIT" && neww.substr(0,3) != "CAP" && neww.substr(0,4) != "PASS")
                     {
-                        if (this->_funcTab.find(firstWord(neww)) != this->_funcTab.end() && _clients[_events[i].data.fd]->getIsConnect() == 0)
+                        if (_clients[_events[i].data.fd]->getIsConnect() == 0)
                         {
                             std::string msg = "Please send a correct password to connect to this server\n";
                             send(_events[i].data.fd, msg.c_str(), msg.size(), 0);
+                            continue ;
                         }    
+                        else
+                        {
+                            (this->*_funcTab[firstWord(neww)])(neww, _events[i].data.fd);
+                            continue ;    
+                        }
+
                     }
+                    (this->*_funcTab[firstWord(neww)])(neww, _events[i].data.fd);
                 }
                 memset(buffer, 0, sizeof(buffer));
             }

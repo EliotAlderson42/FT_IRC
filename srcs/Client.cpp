@@ -19,12 +19,14 @@ Client const &Client::operator=(const Client& client)
     return *this;
 }
 
-Client::Client(int clientSocket, sockaddr_in clientAddr) : _clientAddr(clientAddr), _clientSocket(clientSocket)
+Client::Client(int clientSocket, sockaddr_in clientAddr, int isPasswd) : _clientAddr(clientAddr), _clientSocket(clientSocket)
 {
     _nickname = "nick" + toString(dflt);
     _username = "uname" + toString(dflt);
     dflt++;
-    _isConnect = 0;
+    _isConnect = 1;
+    if (isPasswd == 1)
+        _isConnect = 0;
 }
 
 Client::Client() : _username("User"), _nickname("User"), _password(""){}

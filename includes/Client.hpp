@@ -8,7 +8,7 @@ class Client {
     public:
     
     //Constructors and destructors
-    Client(int _clientSocket, sockaddr_in _clientAddr);
+    Client(int _clientSocket, sockaddr_in _clientAddr, int isPasswd);
     Client const &operator=(const Client& client);
     Client(const Client& client);
     ~Client();
