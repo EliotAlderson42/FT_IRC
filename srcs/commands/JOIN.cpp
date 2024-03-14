@@ -3,6 +3,8 @@
 void Server::join(std::string str, int socket)
 {
     str = str.substr(5);
+    if (str.empty())
+        return ;
     size_t lastChar = str.find_last_not_of(" \n\r\t");
     if(lastChar != std::string::npos)
         str = str.substr(0, lastChar + 1);
@@ -10,7 +12,6 @@ void Server::join(std::string str, int socket)
     //     str.erase(str.find_last_not_of('\n'));
     std::vector<std::string> commands = splitCommands(str, ' ');
     std::string channel = commands[0];
-    std::cout << channel << std::endl;
     std::string password;
     if (commands.size() == 2)
         password = commands[1];
@@ -40,9 +41,7 @@ void Server::join(std::string str, int socket)
                 _channels[channel]->removeInvited(socket);
            _channels[channel]->addSocket(socket);
            _clients[socket]->addChannel(_channels[channel]);
-           std::cout << "wewe : "<< channel << std::endl;
            std::string msg = RPL_JOIN(_clients[socket]->getNickname(), channel.substr(1));
-            std::cout << "size == " << msg.size() << std::endl;
            send(socket, msg.c_str(), msg.size(), 0);
            if (_channels[channel]->getTopic().empty())
            {
@@ -67,7 +66,6 @@ void Server::join(std::string str, int socket)
             _channels[channel]->setOperator(socket);
             _channels[channel]->setInviteOnly(0);
             _clients[socket]->addChannel(_channels[channel]);
-            std::cout << "il est dans le chann ou pas ? " << _channels[channel]->isInChannel(socket) << std::endl;
 			std::string msg = RPL_JOIN(_clients[socket]->getNickname(), channel.substr(1)); 
     		send(socket, msg.c_str(), msg.size(), 0);
             std::string msg2 = RPL_NOTOPIC(_clients[socket]->getNickname(), channel.substr(1));

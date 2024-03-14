@@ -18,7 +18,6 @@ void Server::kick(std::string str, int socket)
         }
         if (!_channels[channel]->isOperator(socket))
         {
-            std::cout << "salt\n" << std::endl;
             std::string msg = _channels[channel]->isInChannel(socket)
                               ? ERR_CHANOPRIVSNEED(_clients[socket]->getNickname(), channel.substr(1))
                               : ERR_NOTONCHANNEL(_clients[socket]->getNickname(), channel.substr(1));

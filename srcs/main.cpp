@@ -26,7 +26,7 @@ int setNonBlocking(int sockfd)
 int main(int argc, char **argv)
 {
     if (argc < 2)
-        return (std::cout << "pas le bon nombre d'arguments\n", 0);
+        return (std::cout << "Usage : ircserv : [port] [Password]\n", 0);
     struct sigaction sa;
     memset(&sa, 0, sizeof(sa));
     sa.sa_sigaction = signalHandler;
@@ -39,6 +39,9 @@ int main(int argc, char **argv)
     }
     // Channel *channel = new Channel("default", "default");
     Server *server = new Server("default", argv[2], argv[1]);
+    server->setIsPasswd(1);
+    if (argc == 2)
+        server->setIsPasswd(0);
     server->initServ();
     server->mainLoop();
     close(server->getServerSocket());

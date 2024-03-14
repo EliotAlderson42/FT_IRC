@@ -13,6 +13,7 @@ class Server {
     //Setters and methods
     void setServerSocket();
     void setServerAddr();
+    void setIsPasswd(int nb);
     void bindServer();
     void listenServer();
     int nbClients;
@@ -49,6 +50,7 @@ class Server {
     int getPassLength();
     int getNickLength();
     int getClientSocket(std::string nickname);
+    int getIsPasswd();
     //utils
     int    initServ();
     void    mainLoop();
@@ -66,6 +68,7 @@ class Server {
     int _serverSocket;
     int _epollFd;
     int _numEvents;
+    int _isPasswd;
     sockaddr_in _serverAddr;
     std::map<std::string, void(Server::*)(std::string, int)> _funcTab;
     std::map<int, Client *> _clients;

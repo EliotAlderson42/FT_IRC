@@ -17,10 +17,8 @@ std::vector<std::string> splitCommands(const std::string& str, char delimiter) {
     std::vector<std::string> commands;
     std::istringstream ss(str);
     std::string command;
-    std::cout << "str = "<< str<<std::endl;
     (void)delimiter;
     while (std::getline(ss, command, delimiter)) {
-        std::cout << "command == " << command << std::endl;
         commands.push_back(command);
         ss.clear();
     }
@@ -30,7 +28,6 @@ std::vector<std::string> splitCommands(const std::string& str, char delimiter) {
 bool onlyWhitespace(const std::string &str) {
     for (std::string::const_iterator it = str.begin(); it != str.end(); ++it) {
         char c = *it;
-        std::cout << "Char: " << c << ", ASCII: " << static_cast<int>(c) << std::endl;
         if (!std::isspace(static_cast<unsigned char>(c)))
             return false;
     }

@@ -90,6 +90,7 @@ void Server::bindServer() {
     if (bind(this->_serverSocket, reinterpret_cast<sockaddr*>(&this->_serverAddr), sizeof(this->_serverAddr)) == -1) {
         std::cerr << "Failed to bind socket" << std::endl;
         close(this->_serverSocket);
+        delete this ;
         exit(1);
     }
     std::cout << "Server binded to port " << this->_port << std::endl;
@@ -132,6 +133,16 @@ Channel *Server::getChannel(std::string name)
     return NULL;
 }
 
+void    Server::setIsPasswd(int nb)
+{
+    this->_isPasswd = nb;
+}
+
+int Server::getIsPasswd()
+{
+    return (this->_isPasswd);
+}
+
 int Server::addClient()
 {
     sockaddr_in clientAddr;
@@ -154,7 +165,7 @@ int Server::addClient()
     }
     if (fcntl(clientSocket, F_SETFL, O_NONBLOCK) == -1)
         std::cerr << "Error setting socket to non-blocking mode.\n";
-    this->_clients[clientSocket] = new Client(clientSocket, clientAddr);
+    this->_clients[clientSocket] = new Client(clientSocket, clientAddr, this->getIsPasswd());
     std::string msg = RPL_WELCOME(_clients[clientSocket]->getNickname());
     send(clientSocket, msg.c_str(), msg.size(), 0);
     return (1);
@@ -203,19 +214,26 @@ void Server::mainLoop()
                 this->addClient();
             else
             {
-                    char buffer[1024] = {0};
-                    recv(_events[i].data.fd, buffer, sizeof(buffer), 0);
-                    std::cout << "\033[35m"<< "Receive : " << buffer << "\033[0m" << std::endl;
-                    std::string neww(buffer);
-                    if (neww.find('\x04') != std::string::npos)
-                        continue ;
-                    if (this->_funcTab.find(firstWord(neww)) != this->_funcTab.end())
+                char buffer[1024] = {0};
+                recv(_events[i].data.fd, buffer, sizeof(buffer), 0);
+                // std::cout << "\033[35m"<< "Receive : " << buffer << "\033[0m" << std::endl;
+                std::string neww(buffer);
+                if (neww.find('\x04') != std::string::npos)
+                    continue ;
+                if (this->_funcTab.find(firstWord(neww)) != this->_funcTab.end())
+                {
+                    (this->*_funcTab[firstWord(neww)])(neww, _events[i].data.fd);
+                    if (neww.substr(0,4) != "QUIT")
                     {
-                        // std::string neww(buffer);
-                        (this->*_funcTab[firstWord(neww)])(neww, _events[i].data.fd);
+                        if (this->_funcTab.find(firstWord(neww)) != this->_funcTab.end() && _clients[_events[i].data.fd]->getIsConnect() == 0)
+                        {
+                            std::string msg = "Please send a correct password to connect to this server\n";
+                            send(_events[i].data.fd, msg.c_str(), msg.size(), 0);
+                        }    
                     }
-                    memset(buffer, 0, sizeof(buffer));
+                }
+                memset(buffer, 0, sizeof(buffer));
+            }
             }
         }
     }
-}
