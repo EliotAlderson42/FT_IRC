@@ -203,8 +203,8 @@ void Server::mainLoop()
         //     std::cerr << "Error calling epoll_wait().\n";
         //     break ;
         // }
-        if (static_cast<size_t>(_numEvents) > _events.size())
-            _events.resize(_numEvents);
+        // if (static_cast<size_t>(_numEvents) > _events.size())
+        //     _events.resize(_numEvents);
         for (int i = 0; i < _numEvents; i++)
         {
             if (_events[i].data.fd == this->getServerSocket())

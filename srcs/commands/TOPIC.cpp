@@ -16,7 +16,7 @@ void Server::topic(std::string str, int socket)
         size_t pos = str.find(':');
         if (pos != std::string::npos)
         {
-            if (_channels[word]->getRestrictedTopic() && !_channels[word]->isOperator(socket))
+            if (_channels[word]->getRestrictedTopic() /*&& !_channels[word]->isOperator(socket)*/)
             {
                 toSend = ERR_CHANOPRIVSNEED(_clients[socket]->getNickname(), word.substr(1));
                 send(socket, toSend.c_str(), toSend.size(), 0);

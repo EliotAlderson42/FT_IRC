@@ -79,12 +79,15 @@ void Server::lMode(bool mode, std::string channel, std::string limit, int socket
 void Server::mode(std::string str, int socket)
 {
     str = str.substr(5);
-    str.erase(str.find_last_not_of('\n'));
+    // size_t lastChar = str.find_last_not_of(" \n\r\t");
+    // if(lastChar != std::string::npos)
+        // str = str.substr(0, lastChar + 1);
     std::vector<std::string> commands = splitCommands(str, ' ');
     if(!(commands.size() <= 3 && commands.size() >= 2))
        return ;
     std::string channel = commands[0];
     std::string mode = commands[1];
+    std::cout << "mode = " << mode << std::endl;
     std::string nickname;
     if (commands.size() == 3)
         nickname = commands[2];

@@ -7,6 +7,7 @@ Channel::Channel() : _password(""), _name("default") {}
 Channel::Channel(std::string name) : _name(name)
 {
     _limit = 0;
+    this->_restrictedTopic = 0;
 }
 
 Channel::~Channel()

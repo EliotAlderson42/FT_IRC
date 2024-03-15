@@ -5,11 +5,9 @@ void Server::join(std::string str, int socket)
     str = str.substr(5);
     if (str.empty())
         return ;
-    size_t lastChar = str.find_last_not_of(" \n\r\t");
-    if(lastChar != std::string::npos)
-        str = str.substr(0, lastChar + 1);
-    // if (str.find('\r') != std::string::npos)
-    //     str.erase(str.find_last_not_of('\n'));
+    // size_t lastChar = str.find_last_not_of(" \n\r\t");
+    // if(lastChar != std::string::npos)
+    //     str = str.substr(0, lastChar + 1);
     std::vector<std::string> commands = splitCommands(str, ' ');
     std::string channel = commands[0];
     std::string password;

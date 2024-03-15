@@ -15,9 +15,15 @@ std::string firstWord(std::string &phrase) {
 
 std::vector<std::string> splitCommands(const std::string& str, char delimiter) {
     std::vector<std::string> commands;
-    std::istringstream ss(str);
+    // std::istringstream ss(str);
+    std::string neww;
     std::string command;
-    (void)delimiter;
+    size_t lastChar = str.find_last_not_of(" \n\r\t");
+    std::cout << "la string = " << str << std::endl;
+    if(lastChar != std::string::npos)
+        neww = str.substr(0, lastChar + 1);
+    std::istringstream ss(neww);
+    // (void)delimiter;
     while (std::getline(ss, command, delimiter)) {
         commands.push_back(command);
         ss.clear();
